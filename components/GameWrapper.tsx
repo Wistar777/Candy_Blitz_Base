@@ -19,6 +19,12 @@ export default function GameWrapper({ onOpenWallet }: GameWrapperProps) {
     const playerData = usePlayerData(address as `0x${string}` | undefined);
     const leaderboard = useLeaderboard();
 
+    // Keep refs for latest data (avoids stale closures in message handler)
+    const leaderboardRef = useRef(leaderboard);
+    const playerDataRef = useRef(playerData);
+    leaderboardRef.current = leaderboard;
+    playerDataRef.current = playerData;
+
     // Send message to game iframe
     const sendToGame = useCallback((type: string, data?: unknown) => {
         iframeRef.current?.contentWindow?.postMessage({ type, data }, "*");
@@ -48,7 +54,7 @@ export default function GameWrapper({ onOpenWallet }: GameWrapperProps) {
 
     // Listen for messages from the game iframe
     useEffect(() => {
-        const handler = (event: MessageEvent) => {
+        const handler = async (event: MessageEvent) => {
             const { type, data } = event.data || {};
 
             switch (type) {
@@ -71,32 +77,49 @@ export default function GameWrapper({ onOpenWallet }: GameWrapperProps) {
                         const { levelIndex, score, starCount } = data;
                         console.log(`[Bridge] Submitting score: level=${levelIndex}, score=${score}, stars=${starCount}`);
                         submitScore(levelIndex, score, starCount);
-                        // NOTE: score-confirmed will be sent via the isSuccess/error effects above
                     }
                     break;
 
                 case "fetch-leaderboard":
-                    // Transform entries to match game's expected format: { player, totalScore }
-                    const formattedEntries = leaderboard.entries.map(e => ({
-                        player: e.address,
-                        totalScore: e.totalScore,
-                        totalStars: e.totalStars,
-                        gamesPlayed: e.gamesPlayed,
-                    }));
-                    sendToGame("leaderboard-data", formattedEntries);
+                    // Refetch latest data from chain
+                    try {
+                        await leaderboardRef.current.refetch();
+                    } catch (e) {
+                        console.warn("[Bridge] Leaderboard refetch failed:", e);
+                    }
+                    // Small delay to let React state update after refetch
+                    setTimeout(() => {
+                        const lb = leaderboardRef.current;
+                        const formattedEntries = lb.entries.map(e => ({
+                            player: e.address,
+                            totalScore: e.totalScore,
+                            totalStars: e.totalStars,
+                            gamesPlayed: e.gamesPlayed,
+                        }));
+                        console.log(`[Bridge] Sending leaderboard: ${formattedEntries.length} entries`);
+                        sendToGame("leaderboard-data", formattedEntries);
+                    }, 500);
                     break;
 
                 case "fetch-progress":
-                    if (playerData.bestScores.some((s: number) => s > 0)) {
-                        sendToGame("player-progress", {
-                            bestScores: playerData.bestScores,
-                            stars: playerData.stars,
-                            completedLevels: playerData.completedLevels,
-                            gamesPlayed: playerData.gamesPlayed,
-                        });
-                    } else {
-                        sendToGame("player-progress", null);
+                    try {
+                        await playerDataRef.current.refetch();
+                    } catch (e) {
+                        console.warn("[Bridge] Player data refetch failed:", e);
                     }
+                    setTimeout(() => {
+                        const pd = playerDataRef.current;
+                        if (pd.bestScores.some((s: number) => s > 0)) {
+                            sendToGame("player-progress", {
+                                bestScores: pd.bestScores,
+                                stars: pd.stars,
+                                completedLevels: pd.completedLevels,
+                                gamesPlayed: pd.gamesPlayed,
+                            });
+                        } else {
+                            sendToGame("player-progress", null);
+                        }
+                    }, 500);
                     break;
 
                 case "check-wallet":
@@ -109,7 +132,7 @@ export default function GameWrapper({ onOpenWallet }: GameWrapperProps) {
 
         window.addEventListener("message", handler);
         return () => window.removeEventListener("message", handler);
-    }, [isConnected, address, sendToGame, submitScore, leaderboard.entries, playerData, onOpenWallet]);
+    }, [isConnected, address, sendToGame, submitScore, onOpenWallet]);
 
     return (
         <iframe
