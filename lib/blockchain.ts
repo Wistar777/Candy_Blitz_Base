@@ -27,8 +27,8 @@ export function usePlayerData(address?: `0x${string}`) {
     const data = result.data;
 
     return {
-        bestScores: data ? (data[0] as bigint[]).map(Number) : Array(6).fill(0),
-        stars: data ? (data[1] as number[]) : Array(6).fill(0),
+        bestScores: data ? (data[0] as unknown as bigint[]).map(Number) : Array(6).fill(0),
+        stars: data ? (data[1] as unknown as number[]) : Array(6).fill(0),
         completedLevels: data ? Number(data[2]) : 0,
         gamesPlayed: data ? Number(data[3]) : 0,
         isLoading: result.isLoading,
