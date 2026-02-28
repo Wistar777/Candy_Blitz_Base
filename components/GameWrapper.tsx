@@ -15,7 +15,7 @@ interface GameWrapperProps {
 export default function GameWrapper({ onOpenWallet }: GameWrapperProps) {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const { address, isConnected } = useAccount();
-    const { submitScore, isSuccess, isPending, error } = useSubmitScore();
+    const { submitScore, isSuccess, isPending: _isPending, error } = useSubmitScore();
     const playerData = usePlayerData(address as `0x${string}` | undefined);
     const leaderboard = useLeaderboard();
 
