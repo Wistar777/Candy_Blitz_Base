@@ -1,0 +1,9 @@
+{
+    "name": "Candy Blitz",
+    "short_name": "CandyBlitz",
+    "description": "On-chain Match-3 game on Base L2",
+    "start_url": "/",
+    "display": "standalone",
+    "theme_color": "#ff1493",
+    "background_color": "#0a0a1a"
+}

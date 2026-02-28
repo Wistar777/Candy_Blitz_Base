@@ -1,0 +1,165 @@
+.container {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.iframeFull {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+.iframeDimmed {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  filter: blur(4px);
+  opacity: 0.5;
+}
+
+/* Wallet overlay */
+.walletOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Wallet card */
+.walletCard {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-radius: 20px;
+  padding: 24px;
+  min-width: 280px;
+  max-width: 340px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  color: white;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.walletTitle {
+  margin: 0 0 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.walletSub {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  opacity: 0.5;
+  text-align: center;
+}
+
+/* Profile header */
+.walletHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.walletAvatar {
+  font-size: 28px;
+}
+
+.walletAddr {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+}
+
+.walletChain {
+  font-size: 12px;
+  opacity: 0.5;
+  margin-top: 2px;
+}
+
+.walletDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 12px 0;
+}
+
+/* Actions */
+.walletAction {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+  margin-bottom: 6px;
+  font-family: inherit;
+}
+
+.walletAction:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.disconnectBtn {
+  color: #ff6b6b;
+}
+
+.disconnectBtn:hover {
+  background: rgba(255, 80, 80, 0.15);
+}
+
+/* Connector list */
+.connectorList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.connectorBtn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: white;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.connectorBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.connectorIcon {
+  font-size: 22px;
+}
