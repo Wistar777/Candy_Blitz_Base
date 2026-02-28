@@ -15,7 +15,7 @@ interface GameWrapperProps {
 export default function GameWrapper({ onOpenWallet }: GameWrapperProps) {
     const iframeRef = useRef<HTMLIFrameElement>(null);
     const { address, isConnected } = useAccount();
-    const { submitScore, isSuccess, isPending: _isPending, error } = useSubmitScore();
+    const { submitScore, txHash, isSuccess, isPending: _isPending, error } = useSubmitScore();
     const playerData = usePlayerData(address as `0x${string}` | undefined);
     const leaderboard = useLeaderboard();
 
@@ -24,6 +24,9 @@ export default function GameWrapper({ onOpenWallet }: GameWrapperProps) {
     const playerDataRef = useRef(playerData);
     leaderboardRef.current = leaderboard;
     playerDataRef.current = playerData;
+
+    // Track which txHash we already confirmed (to avoid duplicate confirmations)
+    const confirmedTxRef = useRef<string | undefined>(undefined);
 
     // Send message to game iframe
     const sendToGame = useCallback((type: string, data?: unknown) => {
@@ -39,15 +42,19 @@ export default function GameWrapper({ onOpenWallet }: GameWrapperProps) {
         }
     }, [isConnected, address, sendToGame]);
 
-    // When TX confirms or fails, notify the game
+    // When TX confirms, notify the game (only once per unique txHash)
     useEffect(() => {
-        if (isSuccess) {
+        if (isSuccess && txHash && txHash !== confirmedTxRef.current) {
+            confirmedTxRef.current = txHash;
+            console.log(`[Bridge] TX confirmed: ${txHash}`);
             sendToGame("score-confirmed", { success: true });
         }
-    }, [isSuccess, sendToGame]);
+    }, [isSuccess, txHash, sendToGame]);
 
+    // When TX fails, notify the game
     useEffect(() => {
         if (error) {
+            console.error(`[Bridge] TX error:`, error);
             sendToGame("score-confirmed", { success: false });
         }
     }, [error, sendToGame]);

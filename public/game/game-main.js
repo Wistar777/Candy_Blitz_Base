@@ -2315,7 +2315,7 @@ async function endGame() {
                 winMapBtn.disabled = false;
                 winMapBtn.classList.remove('btn-disabled');
                 txLoading.classList.add('hidden');
-            }, 1200);
+            }, 3000);
         }
 
         // If first full completion, replace "To Map" button behavior
