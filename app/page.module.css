@@ -139,33 +139,36 @@
   background: rgba(255, 80, 80, 0.15);
 }
 
-/* Sign In button */
-.signInBtn {
+/* Connector list */
+.connectorList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.connectorBtn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
-  background: linear-gradient(135deg, #0052FF, #3B82F6);
-  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 14px;
   padding: 14px 16px;
   color: white;
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   font-family: inherit;
-  margin-top: 8px;
 }
 
-.signInBtn:hover {
-  background: linear-gradient(135deg, #0040CC, #2563EB);
+.connectorBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
 }
 
-.signInBtn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
+.connectorIcon {
+  font-size: 22px;
 }
