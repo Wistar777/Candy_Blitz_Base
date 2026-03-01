@@ -1,61 +1,42 @@
 "use client";
 import { ReactNode } from "react";
-import { createConfig, http, createStorage, cookieStorage, WagmiProvider } from "wagmi";
-import { base } from "wagmi/chains";
-import { baseAccount } from "wagmi/connectors";
-import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import dynamic from "next/dynamic";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
 import "@coinbase/onchainkit/styles.css";
+import { base } from "wagmi/chains";
 
 const API_KEY = process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY;
 
-// Custom wagmi config per Base docs:
-// https://docs.base.org/mini-apps/core-concepts/base-account
-const wagmiConfig = createConfig({
-  chains: [base],
-  connectors: [
-    farcasterMiniApp(),
-    baseAccount({
-      appName: "Candy Blitz",
-    }),
-  ],
-  storage: createStorage({ storage: cookieStorage }),
-  ssr: true,
-  transports: {
-    [base.id]: API_KEY
-      ? http(`https://api.developer.coinbase.com/rpc/v1/base/${API_KEY}`)
-      : http(),
-  },
-});
-
-const queryClient = new QueryClient();
+// Dynamic import WagmiProvider with ssr:false (critical for Base App)
+// Per official demo: https://github.com/base/demos/tree/master/mini-apps/templates/farcaster-sdk/mini-app-full-demo
+const WagmiProviderWrapper = dynamic(
+  () => import("@/components/WagmiProviderWrapper"),
+  { ssr: false }
+);
 
 export function RootProvider({ children }: { children: ReactNode }) {
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <OnchainKitProvider
-          apiKey={API_KEY}
-          chain={base}
-          config={{
-            appearance: {
-              mode: "auto",
-            },
-            wallet: {
-              display: "modal",
-              preference: "all",
-            },
-          }}
-          miniKit={{
-            enabled: true,
-            autoConnect: true,
-            notificationProxyUrl: undefined,
-          }}
-        >
-          {children}
-        </OnchainKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <WagmiProviderWrapper>
+      <OnchainKitProvider
+        apiKey={API_KEY}
+        chain={base}
+        config={{
+          appearance: {
+            mode: "auto",
+          },
+          wallet: {
+            display: "modal",
+            preference: "all",
+          },
+        }}
+        miniKit={{
+          enabled: true,
+          autoConnect: true,
+          notificationProxyUrl: undefined,
+        }}
+      >
+        {children}
+      </OnchainKitProvider>
+    </WagmiProviderWrapper>
   );
 }
