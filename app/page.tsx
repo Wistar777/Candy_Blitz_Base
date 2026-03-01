@@ -77,7 +77,7 @@ export default function Home() {
 
   // Get user profile from Farcaster context or fallback to address
   const user = context?.user as { displayName?: string; username?: string; pfpUrl?: string } | undefined;
-  const displayName = user?.displayName || user?.username || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
+  const displayName = user?.username || user?.displayName || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
   const avatarUrl = user?.pfpUrl || null;
 
   return (
