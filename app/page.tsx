@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { Name, Avatar, Identity } from "@coinbase/onchainkit/identity";
@@ -13,6 +13,7 @@ export default function Home() {
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const connectAttemptRef = useRef(false);
 
   useEffect(() => {
     if (!isMiniAppReady) {
@@ -20,25 +21,55 @@ export default function Home() {
     }
   }, [setMiniAppReady, isMiniAppReady]);
 
+  // Log available connectors for debugging
+  useEffect(() => {
+    console.log("[Wallet] Available connectors:", connectors.map(c => `${c.name} (${c.type})`));
+  }, [connectors]);
+
+  // Auto-retry connection if farcaster connector appears later (race condition fix)
+  useEffect(() => {
+    if (isConnected || connectAttemptRef.current) return;
+
+    const farcasterConnector = connectors.find(
+      (c) => c.type === "farcasterFrame" || c.type === "farcasterMiniApp"
+    );
+
+    if (farcasterConnector) {
+      console.log("[Wallet] Farcaster connector detected, auto-connecting...");
+      connectAttemptRef.current = true;
+      connect({ connector: farcasterConnector });
+    }
+  }, [connectors, isConnected, connect]);
+
   // Called by game iframe via postMessage
   const openWalletModal = useCallback(() => {
     if (isConnected) {
       setWalletModalOpen(true);
     } else {
-      // Try farcaster connectors first (Base App / MiniKit)
+      // Try farcaster connectors first (Base App / MiniKit — no popup)
       const farcasterConnector = connectors.find(
         (c) => c.type === "farcasterFrame" || c.type === "farcasterMiniApp"
       );
-      const connector = farcasterConnector || connectors[0];
-      if (connector) {
-        console.log(`[Wallet] Connecting via ${connector.type}: ${connector.name}`);
-        connect({ connector });
+
+      if (farcasterConnector) {
+        console.log(`[Wallet] Connecting via farcaster: ${farcasterConnector.name}`);
+        connect({ connector: farcasterConnector });
+      } else {
+        // Fallback: try any available connector (browser mode)
+        const connector = connectors[0];
+        if (connector) {
+          console.log(`[Wallet] Connecting via ${connector.type}: ${connector.name}`);
+          connect({ connector });
+        } else {
+          console.warn("[Wallet] No connectors available");
+        }
       }
     }
   }, [isConnected, connectors, connect]);
 
   const handleDisconnect = useCallback(() => {
     disconnect();
+    connectAttemptRef.current = false;
     setWalletModalOpen(false);
   }, [disconnect]);
 
