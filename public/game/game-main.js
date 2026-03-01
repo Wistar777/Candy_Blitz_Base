@@ -787,6 +787,11 @@ function dismissOnboarding() {
     }
 }
 
+// Expose onboarding functions to global scope (needed for inline onclick in module)
+window.showOnboardingSlide = showOnboardingSlide;
+window.onboardingNext = onboardingNext;
+window.dismissOnboarding = dismissOnboarding;
+
 // ===== GAME =====
 function startLevel(levelIndex) {
     // Show onboarding on first play
