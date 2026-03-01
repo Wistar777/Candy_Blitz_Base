@@ -111,6 +111,7 @@ export function useSubmitScore() {
                         to: CANDY_BLITZ_ADDRESS,
                         data: dataWithSuffix,
                     }],
+                    chainId: 8453, // Base mainnet
                     capabilities: PAYMASTER_URL ? {
                         paymasterService: {
                             url: PAYMASTER_URL,
