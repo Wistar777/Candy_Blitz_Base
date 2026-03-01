@@ -22,16 +22,16 @@ export default function Home() {
 
   // Called by game iframe via postMessage
   const openWalletModal = useCallback(() => {
-    if (isConnected) {
-      setWalletModalOpen(true);
-    } else {
-      // Smart Wallet only — auto-connect with first connector
-      const connector = connectors[0];
-      if (connector) {
-        connect({ connector });
-      }
+    setWalletModalOpen(true);
+  }, []);
+
+  const handleConnect = useCallback(() => {
+    const connector = connectors[0];
+    if (connector) {
+      connect({ connector });
+      setWalletModalOpen(false);
     }
-  }, [isConnected, connectors, connect]);
+  }, [connect, connectors]);
 
   const handleDisconnect = useCallback(() => {
     disconnect();
@@ -46,45 +46,63 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
-      {/* Profile modal overlay */}
-      {walletModalOpen && isConnected && address && (
+      {/* Wallet modal overlay */}
+      {walletModalOpen && (
         <div className={styles.walletOverlay} onClick={handleOverlayClick}>
           <div className={styles.walletCard}>
-            <div className={styles.walletHeader}>
-              <Identity
-                address={address}
-                chain={base}
-                className={styles.identityContainer}
-              >
-                <Avatar
-                  address={address}
-                  chain={base}
-                  className={styles.avatarImg}
-                />
-                <Name
-                  address={address}
-                  chain={base}
-                  className={styles.userName}
-                />
-              </Identity>
-              <div className={styles.walletChain}>Base</div>
-            </div>
-            <div className={styles.walletDivider} />
-            <button
-              className={styles.walletAction}
-              onClick={() => {
-                window.open(`https://basescan.org/address/${address}`, "_blank");
-                setWalletModalOpen(false);
-              }}
-            >
-              🔍 View on BaseScan
-            </button>
-            <button
-              className={`${styles.walletAction} ${styles.disconnectBtn}`}
-              onClick={handleDisconnect}
-            >
-              🔌 Disconnect
-            </button>
+            {isConnected && address ? (
+              /* Connected — show profile */
+              <>
+                <div className={styles.walletHeader}>
+                  <Identity
+                    address={address}
+                    chain={base}
+                    className={styles.identityContainer}
+                  >
+                    <Avatar
+                      address={address}
+                      chain={base}
+                      className={styles.avatarImg}
+                    />
+                    <Name
+                      address={address}
+                      chain={base}
+                      className={styles.userName}
+                    />
+                  </Identity>
+                  <div className={styles.walletChain}>Base</div>
+                </div>
+                <div className={styles.walletDivider} />
+                <button
+                  className={styles.walletAction}
+                  onClick={() => {
+                    window.open(`https://basescan.org/address/${address}`, "_blank");
+                    setWalletModalOpen(false);
+                  }}
+                >
+                  🔍 View on BaseScan
+                </button>
+                <button
+                  className={`${styles.walletAction} ${styles.disconnectBtn}`}
+                  onClick={handleDisconnect}
+                >
+                  🔌 Disconnect
+                </button>
+              </>
+            ) : (
+              /* Not connected — show connect button */
+              <>
+                <h3 className={styles.walletTitle}>Connect Wallet</h3>
+                <p className={styles.walletSub}>Connect to play and save scores on Base</p>
+                <button
+                  className={styles.connectorBtn}
+                  onClick={handleConnect}
+                >
+                  <span className={styles.connectorIcon}>🔵</span>
+                  <span>Connect Smart Wallet</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
