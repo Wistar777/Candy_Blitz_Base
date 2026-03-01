@@ -103,13 +103,14 @@ onWalletConnect(() => {
     // Update wallet button on splash
     const walletBtn = document.getElementById('walletBtn');
     if (walletBtn) {
-        walletBtn.textContent = '🟢 ' + getWalletAddress();
+        const addr = getWalletAddress();
+        walletBtn.textContent = '🔗 ' + addr.slice(0, 6) + '...' + addr.slice(-4);
         walletBtn.classList.add('connected');
     }
     // Update wallet button on map
     const mapBtn = document.getElementById('walletBtnMap');
     if (mapBtn) {
-        mapBtn.textContent = '🟢';
+        mapBtn.textContent = '🔗';
         mapBtn.title = getWalletAddress();
         mapBtn.classList.remove('wallet-reconnecting');
     }
@@ -2472,12 +2473,13 @@ renderMap();
         if (playBtn) playBtn.classList.remove('hidden');
         const walletBtn = document.getElementById('walletBtn');
         if (walletBtn) {
-            walletBtn.textContent = '🟢 ' + getWalletAddress();
+            const addr = getWalletAddress();
+            walletBtn.textContent = '🔗 ' + addr.slice(0, 6) + '...' + addr.slice(-4);
             walletBtn.classList.add('connected');
         }
         const mapBtn = document.getElementById('walletBtnMap');
         if (mapBtn) {
-            mapBtn.textContent = '🟢';
+            mapBtn.textContent = '🔗';
             mapBtn.title = getWalletAddress();
             mapBtn.classList.remove('wallet-reconnecting');
         }
