@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { useAccount, useDisconnect } from "wagmi";
-import { useMiniKit, useAuthenticate } from "@coinbase/onchainkit/minikit";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useReconnect } from "wagmi";
+import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { Name, Avatar, Identity } from "@coinbase/onchainkit/identity";
 import { base } from "viem/chains";
 import GameWrapper from "@/components/GameWrapper";
@@ -10,8 +11,9 @@ import styles from "./page.module.css";
 export default function Home() {
   const { setMiniAppReady, isMiniAppReady } = useMiniKit();
   const { address, isConnected } = useAccount();
+  const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
-  const { signIn } = useAuthenticate();
+  const { reconnect } = useReconnect();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [isSigningIn, setIsSigningIn] = useState(false);
 
@@ -25,6 +27,7 @@ export default function Home() {
   useEffect(() => {
     if (isConnected && walletModalOpen) {
       setWalletModalOpen(false);
+      setIsSigningIn(false);
     }
   }, [isConnected, walletModalOpen]);
 
@@ -35,20 +38,32 @@ export default function Home() {
 
   const handleSignIn = useCallback(async () => {
     setIsSigningIn(true);
+    console.log("[Auth] Available connectors:", connectors.map(c => `${c.name} (${c.type})`));
+
     try {
-      const result = await signIn();
-      if (result) {
-        console.log("[Auth] Sign in successful");
-        setWalletModalOpen(false);
-      } else {
-        console.warn("[Auth] Sign in cancelled or failed");
+      // First try useReconnect (restores previous session)
+      console.log("[Auth] Trying reconnect...");
+      reconnect();
+
+      // Give reconnect a moment to work
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // If still not connected, try connecting with first available connector
+      if (!document.hidden) {
+        for (const connector of connectors) {
+          try {
+            console.log(`[Auth] Trying connector: ${connector.name} (${connector.type})`);
+            connect({ connector });
+            return; // Exit on first successful attempt
+          } catch (err) {
+            console.warn(`[Auth] Connector ${connector.name} failed:`, err);
+          }
+        }
       }
     } catch (err) {
       console.error("[Auth] Sign in error:", err);
-    } finally {
-      setIsSigningIn(false);
     }
-  }, [signIn]);
+  }, [connectors, connect, reconnect]);
 
   const handleDisconnect = useCallback(() => {
     disconnect();
