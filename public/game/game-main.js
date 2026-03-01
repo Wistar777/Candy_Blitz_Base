@@ -732,8 +732,69 @@ function resetTheme() {
     document.documentElement.style.removeProperty('--theme-accent');
 }
 
+// ===== ONBOARDING =====
+let pendingLevelIndex = null;
+
+function showOnboarding(levelIndex) {
+    pendingLevelIndex = levelIndex;
+    const overlay = document.getElementById('onboardingOverlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'flex';
+        showOnboardingSlide(0);
+    }
+}
+
+let currentOnboardingSlide = 0;
+const totalOnboardingSlides = 3;
+
+function showOnboardingSlide(index) {
+    currentOnboardingSlide = index;
+    for (let i = 0; i < totalOnboardingSlides; i++) {
+        const slide = document.getElementById('onb-slide-' + i);
+        if (slide) slide.style.display = i === index ? 'flex' : 'none';
+    }
+    // Update dots
+    const dots = document.querySelectorAll('.onb-dot');
+    dots.forEach((d, i) => {
+        d.classList.toggle('active', i === index);
+    });
+    // Update buttons
+    const nextBtn = document.getElementById('onbNextBtn');
+    if (nextBtn) {
+        nextBtn.textContent = index === totalOnboardingSlides - 1 ? 'Play! 🎮' : 'Next →';
+    }
+}
+
+function onboardingNext() {
+    if (currentOnboardingSlide < totalOnboardingSlides - 1) {
+        showOnboardingSlide(currentOnboardingSlide + 1);
+    } else {
+        dismissOnboarding();
+    }
+}
+
+function dismissOnboarding() {
+    localStorage.setItem('candyBlitz_onboarding_done', '1');
+    const overlay = document.getElementById('onboardingOverlay');
+    if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+    }
+    if (pendingLevelIndex !== null) {
+        startLevel(pendingLevelIndex);
+        pendingLevelIndex = null;
+    }
+}
+
 // ===== GAME =====
 function startLevel(levelIndex) {
+    // Show onboarding on first play
+    if (!localStorage.getItem('candyBlitz_onboarding_done')) {
+        showOnboarding(levelIndex);
+        return;
+    }
+
     currentLevelIndex = levelIndex;
     const level = LEVELS[levelIndex];
 

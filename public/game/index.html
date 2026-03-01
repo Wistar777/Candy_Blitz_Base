@@ -67,6 +67,162 @@
         }
     </script>
 
+    <!-- Onboarding Overlay (shown once on first play) -->
+    <div id="onboardingOverlay" class="hidden" style="
+        display: none;
+        position: fixed; inset: 0; z-index: 99999;
+        background: rgba(0,0,0,0.85);
+        backdrop-filter: blur(8px);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        animation: onbFadeIn 0.3s ease;
+    ">
+        <!-- Slide 0: Match Candies -->
+        <div id="onb-slide-0" class="onb-slide" style="display:flex;">
+            <div class="onb-emoji">🍬🍭🍫</div>
+            <h2 class="onb-title">Match Candies!</h2>
+            <p class="onb-text">Swap candies to make a row or column of 3 or more. Create combos for bonus points!</p>
+        </div>
+        <!-- Slide 1: Earn Stars -->
+        <div id="onb-slide-1" class="onb-slide" style="display:none;">
+            <div class="onb-emoji">⭐⭐⭐</div>
+            <h2 class="onb-title">Earn Stars</h2>
+            <p class="onb-text">Score enough points to earn 1-3 stars per level. Beat the target before time runs out!
+            </p>
+        </div>
+        <!-- Slide 2: On-Chain -->
+        <div id="onb-slide-2" class="onb-slide" style="display:none;">
+            <div class="onb-emoji">🏆⛓️</div>
+            <h2 class="onb-title">Compete On-Chain</h2>
+            <p class="onb-text">Your scores are saved to the Base blockchain. Climb the leaderboard and prove you're the
+                best!</p>
+        </div>
+        <!-- Dots -->
+        <div class="onb-dots">
+            <span class="onb-dot active" onclick="showOnboardingSlide(0)"></span>
+            <span class="onb-dot" onclick="showOnboardingSlide(1)"></span>
+            <span class="onb-dot" onclick="showOnboardingSlide(2)"></span>
+        </div>
+        <!-- Buttons -->
+        <div class="onb-buttons">
+            <button class="onb-btn onb-skip" onclick="dismissOnboarding()">Skip</button>
+            <button class="onb-btn onb-next" id="onbNextBtn" onclick="onboardingNext()">Next →</button>
+        </div>
+    </div>
+
+    <style>
+        @keyframes onbFadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .onb-slide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 0 30px;
+            max-width: 340px;
+            animation: onbSlideIn 0.3s ease;
+        }
+
+        @keyframes onbSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .onb-emoji {
+            font-size: 52px;
+            margin-bottom: 16px;
+        }
+
+        .onb-title {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 0 12px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .onb-text {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .onb-dots {
+            display: flex;
+            gap: 10px;
+            margin-top: 32px;
+        }
+
+        .onb-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .onb-dot.active {
+            background: #f59e0b;
+            transform: scale(1.3);
+        }
+
+        .onb-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .onb-btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            transition: all 0.2s;
+        }
+
+        .onb-skip {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .onb-skip:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .onb-next {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+
+        .onb-next:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+        }
+    </style>
+
     <!-- Floating Hearts -->
     <div class="floating-hearts" id="floatingHearts"></div>
 
