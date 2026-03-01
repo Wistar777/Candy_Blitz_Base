@@ -2493,14 +2493,10 @@ renderMap();
 
 // Auto-start music on first user interaction (browsers block autoplay without interaction)
 function autoStartMusic() {
+    initAudio(); // AudioContext requires user gesture
     startMusic();
     document.removeEventListener('click', autoStartMusic);
     document.removeEventListener('touchstart', autoStartMusic);
 }
 document.addEventListener('click', autoStartMusic);
 document.addEventListener('touchstart', autoStartMusic);
-
-// Also try on load (may be blocked by browser)
-window.addEventListener('load', () => {
-    startMusic();
-});
