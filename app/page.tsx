@@ -2,6 +2,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
+import { Name, Avatar, Identity } from "@coinbase/onchainkit/identity";
+import { base } from "viem/chains";
 import GameWrapper from "@/components/GameWrapper";
 import styles from "./page.module.css";
 
@@ -21,21 +23,15 @@ export default function Home() {
   // Called by game iframe via postMessage
   const openWalletModal = useCallback(() => {
     if (isConnected) {
-      // Already connected — show profile modal
       setWalletModalOpen(true);
     } else {
-      // Not connected — show connector selection
-      setWalletModalOpen(true);
+      // Smart Wallet only — auto-connect with first connector
+      const connector = connectors[0];
+      if (connector) {
+        connect({ connector });
+      }
     }
-  }, [isConnected]);
-
-  const handleConnect = useCallback((connectorIndex: number) => {
-    const connector = connectors[connectorIndex];
-    if (connector) {
-      connect({ connector });
-      setWalletModalOpen(false);
-    }
-  }, [connect, connectors]);
+  }, [isConnected, connectors, connect]);
 
   const handleDisconnect = useCallback(() => {
     disconnect();
@@ -48,68 +44,47 @@ export default function Home() {
     }
   }, []);
 
-  const shortAddr = address
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : "";
-
   return (
     <div className={styles.container}>
-      {/* Wallet modal overlay */}
-      {walletModalOpen && (
+      {/* Profile modal overlay */}
+      {walletModalOpen && isConnected && address && (
         <div className={styles.walletOverlay} onClick={handleOverlayClick}>
           <div className={styles.walletCard}>
-            {isConnected ? (
-              /* Connected — show profile */
-              <>
-                <div className={styles.walletHeader}>
-                  <div className={styles.walletAvatar}>🟢</div>
-                  <div>
-                    <div className={styles.walletAddr}>{shortAddr}</div>
-                    <div className={styles.walletChain}>Base</div>
-                  </div>
-                </div>
-                <div className={styles.walletDivider} />
-                <button
-                  className={styles.walletAction}
-                  onClick={() => {
-                    if (address) {
-                      window.open(`https://basescan.org/address/${address}`, "_blank");
-                    }
-                    setWalletModalOpen(false);
-                  }}
-                >
-                  🔍 View on BaseScan
-                </button>
-                <button
-                  className={`${styles.walletAction} ${styles.disconnectBtn}`}
-                  onClick={handleDisconnect}
-                >
-                  🔌 Disconnect
-                </button>
-              </>
-            ) : (
-              /* Not connected — show connector list */
-              <>
-                <h3 className={styles.walletTitle}>Connect Wallet</h3>
-                <p className={styles.walletSub}>Choose a wallet to connect to Base</p>
-                <div className={styles.connectorList}>
-                  {connectors.map((connector, i) => (
-                    <button
-                      key={connector.uid}
-                      className={styles.connectorBtn}
-                      onClick={() => handleConnect(i)}
-                    >
-                      <span className={styles.connectorIcon}>
-                        {connector.name.includes("Coinbase") ? "🔵" :
-                          connector.name.includes("MetaMask") ? "🦊" :
-                            connector.name.includes("Farcaster") ? "🟣" : "🔗"}
-                      </span>
-                      <span>{connector.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
+            <div className={styles.walletHeader}>
+              <Identity
+                address={address}
+                chain={base}
+                className={styles.identityContainer}
+              >
+                <Avatar
+                  address={address}
+                  chain={base}
+                  className={styles.avatarImg}
+                />
+                <Name
+                  address={address}
+                  chain={base}
+                  className={styles.userName}
+                />
+              </Identity>
+              <div className={styles.walletChain}>Base</div>
+            </div>
+            <div className={styles.walletDivider} />
+            <button
+              className={styles.walletAction}
+              onClick={() => {
+                window.open(`https://basescan.org/address/${address}`, "_blank");
+                setWalletModalOpen(false);
+              }}
+            >
+              🔍 View on BaseScan
+            </button>
+            <button
+              className={`${styles.walletAction} ${styles.disconnectBtn}`}
+              onClick={handleDisconnect}
+            >
+              🔌 Disconnect
+            </button>
           </div>
         </div>
       )}
