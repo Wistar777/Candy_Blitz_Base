@@ -139,17 +139,33 @@
   background: rgba(255, 80, 80, 0.15);
 }
 
-/* Connect Wallet wrapper */
-.connectWrapper {
+/* Sign In button */
+.signInBtn {
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: linear-gradient(135deg, #0052FF, #3B82F6);
+  border: none;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
   margin-top: 8px;
 }
 
-.connectBtn {
-  width: 100%;
-  border-radius: 14px !important;
-  padding: 14px 16px !important;
-  font-size: 15px !important;
-  font-weight: 500 !important;
+.signInBtn:hover {
+  background: linear-gradient(135deg, #0040CC, #2563EB);
+  transform: translateY(-1px);
+}
+
+.signInBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }

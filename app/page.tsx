@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { useAccount } from "wagmi";
-import { useMiniKit } from "@coinbase/onchainkit/minikit";
+import { useAccount, useDisconnect } from "wagmi";
+import { useMiniKit, useAuthenticate } from "@coinbase/onchainkit/minikit";
 import { Name, Avatar, Identity } from "@coinbase/onchainkit/identity";
-import { Wallet, ConnectWallet } from "@coinbase/onchainkit/wallet";
 import { base } from "viem/chains";
 import GameWrapper from "@/components/GameWrapper";
 import styles from "./page.module.css";
@@ -11,7 +10,10 @@ import styles from "./page.module.css";
 export default function Home() {
   const { setMiniAppReady, isMiniAppReady } = useMiniKit();
   const { address, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
+  const { signIn } = useAuthenticate();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   useEffect(() => {
     if (!isMiniAppReady) {
@@ -30,6 +32,28 @@ export default function Home() {
   const openWalletModal = useCallback(() => {
     setWalletModalOpen(true);
   }, []);
+
+  const handleSignIn = useCallback(async () => {
+    setIsSigningIn(true);
+    try {
+      const result = await signIn();
+      if (result) {
+        console.log("[Auth] Sign in successful");
+        setWalletModalOpen(false);
+      } else {
+        console.warn("[Auth] Sign in cancelled or failed");
+      }
+    } catch (err) {
+      console.error("[Auth] Sign in error:", err);
+    } finally {
+      setIsSigningIn(false);
+    }
+  }, [signIn]);
+
+  const handleDisconnect = useCallback(() => {
+    disconnect();
+    setWalletModalOpen(false);
+  }, [disconnect]);
 
   const handleOverlayClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -77,23 +101,23 @@ export default function Home() {
                 </button>
                 <button
                   className={`${styles.walletAction} ${styles.disconnectBtn}`}
-                  onClick={() => setWalletModalOpen(false)}
+                  onClick={handleDisconnect}
                 >
-                  ✕ Close
+                  🔌 Disconnect
                 </button>
               </>
             ) : (
-              /* Not connected — use OnchainKit ConnectWallet */
+              /* Not connected — show Sign In */
               <>
-                <h3 className={styles.walletTitle}>Connect Wallet</h3>
-                <p className={styles.walletSub}>Connect to play and save scores on Base</p>
-                <div className={styles.connectWrapper}>
-                  <Wallet>
-                    <ConnectWallet
-                      className={styles.connectBtn}
-                    />
-                  </Wallet>
-                </div>
+                <h3 className={styles.walletTitle}>Sign In</h3>
+                <p className={styles.walletSub}>Sign in to play and save scores on Base</p>
+                <button
+                  className={styles.signInBtn}
+                  onClick={handleSignIn}
+                  disabled={isSigningIn}
+                >
+                  {isSigningIn ? "Signing in..." : "🔵 Sign In"}
+                </button>
               </>
             )}
           </div>
