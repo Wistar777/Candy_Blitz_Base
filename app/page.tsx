@@ -1,8 +1,9 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount } from "wagmi";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { Name, Avatar, Identity } from "@coinbase/onchainkit/identity";
+import { Wallet, ConnectWallet } from "@coinbase/onchainkit/wallet";
 import { base } from "viem/chains";
 import GameWrapper from "@/components/GameWrapper";
 import styles from "./page.module.css";
@@ -10,8 +11,6 @@ import styles from "./page.module.css";
 export default function Home() {
   const { setMiniAppReady, isMiniAppReady } = useMiniKit();
   const { address, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
-  const { disconnect } = useDisconnect();
   const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   useEffect(() => {
@@ -31,23 +30,6 @@ export default function Home() {
   const openWalletModal = useCallback(() => {
     setWalletModalOpen(true);
   }, []);
-
-  const handleConnect = useCallback(() => {
-    // Try each connector until one works
-    for (const connector of connectors) {
-      try {
-        connect({ connector });
-        return;
-      } catch (e) {
-        console.warn(`[Wallet] Connector ${connector.name} failed:`, e);
-      }
-    }
-  }, [connect, connectors]);
-
-  const handleDisconnect = useCallback(() => {
-    disconnect();
-    setWalletModalOpen(false);
-  }, [disconnect]);
 
   const handleOverlayClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -95,23 +77,23 @@ export default function Home() {
                 </button>
                 <button
                   className={`${styles.walletAction} ${styles.disconnectBtn}`}
-                  onClick={handleDisconnect}
+                  onClick={() => setWalletModalOpen(false)}
                 >
-                  🔌 Disconnect
+                  ✕ Close
                 </button>
               </>
             ) : (
-              /* Not connected — show connect button */
+              /* Not connected — use OnchainKit ConnectWallet */
               <>
                 <h3 className={styles.walletTitle}>Connect Wallet</h3>
                 <p className={styles.walletSub}>Connect to play and save scores on Base</p>
-                <button
-                  className={styles.connectorBtn}
-                  onClick={handleConnect}
-                >
-                  <span className={styles.connectorIcon}>🔵</span>
-                  <span>Connect Smart Wallet</span>
-                </button>
+                <div className={styles.connectWrapper}>
+                  <Wallet>
+                    <ConnectWallet
+                      className={styles.connectBtn}
+                    />
+                  </Wallet>
+                </div>
               </>
             )}
           </div>

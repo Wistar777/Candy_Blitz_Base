@@ -139,36 +139,17 @@
   background: rgba(255, 80, 80, 0.15);
 }
 
-/* Connector list */
-.connectorList {
+/* Connect Wallet wrapper */
+.connectWrapper {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
 }
 
-.connectorBtn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.connectBtn {
   width: 100%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 14px 16px;
-  color: white;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-
-.connectorBtn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
-
-.connectorIcon {
-  font-size: 22px;
+  border-radius: 14px !important;
+  padding: 14px 16px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
 }
