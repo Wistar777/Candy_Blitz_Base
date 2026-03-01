@@ -2467,7 +2467,7 @@ renderMap();
 
     const reconnected = await tryAutoReconnect();
     if (reconnected) {
-        // Wallet was previously connected — skip splash, go to map
+        // Wallet reconnected — update UI but stay on splash screen
         const playBtn = document.getElementById('playBtn');
         if (playBtn) playBtn.classList.remove('hidden');
         const walletBtn = document.getElementById('walletBtn');
@@ -2483,10 +2483,9 @@ renderMap();
         }
         loadWalletProgress();
         renderMap();
-        showScreen('mapScreen');
+        // Stay on splash — user presses Play to go to map
         dismissReconnectOverlay();
     } else {
-        // Fallback: if auto-reconnect failed but the index.html DOM hack preemptively showed the map, revert to splash.
         dismissReconnectOverlay();
         showScreen('startScreen');
     }
