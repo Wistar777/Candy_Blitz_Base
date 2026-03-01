@@ -349,6 +349,9 @@ function showMap() {
     resetTheme();
     renderMap();
     showScreen('mapScreen');
+    // Start music when entering the map (first user action)
+    initAudio();
+    startMusic();
 }
 
 function backToMap() {
@@ -2492,13 +2495,3 @@ renderMap();
         showScreen('startScreen');
     }
 })();
-
-// Auto-start music on first user interaction (browsers block autoplay without interaction)
-function autoStartMusic() {
-    initAudio(); // AudioContext requires user gesture
-    startMusic();
-    document.removeEventListener('click', autoStartMusic);
-    document.removeEventListener('touchstart', autoStartMusic);
-}
-document.addEventListener('click', autoStartMusic);
-document.addEventListener('touchstart', autoStartMusic);
