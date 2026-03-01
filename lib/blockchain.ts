@@ -3,6 +3,12 @@
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { CANDY_BLITZ_ADDRESS, CANDY_BLITZ_ABI } from "./contract";
 import { useState, useCallback } from "react";
+import { Attribution } from "ox/erc8021";
+
+// Builder Code for Base attribution (base.dev > Settings > Builder Codes)
+const BUILDER_DATA_SUFFIX = Attribution.toDataSuffix({
+    codes: ["bc_6zhlgf07"],
+});
 
 // ===== Wallet Hook =====
 
@@ -60,6 +66,7 @@ export function useSubmitScore() {
                     abi: CANDY_BLITZ_ABI,
                     functionName: "submitScore",
                     args: [levelId, BigInt(score), starCount],
+                    dataSuffix: BUILDER_DATA_SUFFIX,
                 });
             } catch (err) {
                 console.error("[Contract] submitScore failed:", err);
