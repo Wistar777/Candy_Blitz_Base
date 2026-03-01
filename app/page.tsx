@@ -2,13 +2,11 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
-import { Name, Avatar, Identity } from "@coinbase/onchainkit/identity";
-import { base } from "viem/chains";
 import GameWrapper from "@/components/GameWrapper";
 import styles from "./page.module.css";
 
 export default function Home() {
-  const { setMiniAppReady, isMiniAppReady } = useMiniKit();
+  const { setMiniAppReady, isMiniAppReady, context } = useMiniKit();
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
@@ -24,7 +22,8 @@ export default function Home() {
   // Log available connectors for debugging
   useEffect(() => {
     console.log("[Wallet] Available connectors:", connectors.map(c => `${c.name} (${c.type})`));
-  }, [connectors]);
+    console.log("[MiniKit] Context:", context);
+  }, [connectors, context]);
 
   // Auto-retry connection if farcaster connector appears later (race condition fix)
   useEffect(() => {
@@ -55,13 +54,10 @@ export default function Home() {
         console.log(`[Wallet] Connecting via farcaster: ${farcasterConnector.name}`);
         connect({ connector: farcasterConnector });
       } else {
-        // Fallback: try any available connector (browser mode)
         const connector = connectors[0];
         if (connector) {
           console.log(`[Wallet] Connecting via ${connector.type}: ${connector.name}`);
           connect({ connector });
-        } else {
-          console.warn("[Wallet] No connectors available");
         }
       }
     }
@@ -79,6 +75,11 @@ export default function Home() {
     }
   }, []);
 
+  // Get user profile from Farcaster context or fallback to address
+  const user = context?.user as { displayName?: string; username?: string; pfpUrl?: string } | undefined;
+  const displayName = user?.displayName || user?.username || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "");
+  const avatarUrl = user?.pfpUrl || null;
+
   return (
     <div className={styles.container}>
       {/* Profile modal overlay */}
@@ -86,23 +87,17 @@ export default function Home() {
         <div className={styles.walletOverlay} onClick={handleOverlayClick}>
           <div className={styles.walletCard}>
             <div className={styles.walletHeader}>
-              <Identity
-                address={address}
-                chain={base}
-                className={styles.identityContainer}
-              >
-                <Avatar
-                  address={address}
-                  chain={base}
-                  className={styles.avatarImg}
-                />
-                <Name
-                  address={address}
-                  chain={base}
-                  className={styles.userName}
-                />
-              </Identity>
-              <div className={styles.walletChain}>Base</div>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className={styles.avatarImg} />
+              ) : (
+                <div className={styles.avatarFallback}>
+                  {displayName.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className={styles.profileInfo}>
+                <div className={styles.userName}>{displayName}</div>
+                <div className={styles.walletChain}>Base</div>
+              </div>
             </div>
             <div className={styles.walletDivider} />
             <button
