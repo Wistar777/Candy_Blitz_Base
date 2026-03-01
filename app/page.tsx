@@ -15,9 +15,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!isMiniAppReady) {
-      // Keep splash screen visible for at least 2.5 seconds
-      const timer = setTimeout(() => setMiniAppReady(), 2500);
-      return () => clearTimeout(timer);
+      setMiniAppReady();
     }
   }, [setMiniAppReady, isMiniAppReady]);
 
