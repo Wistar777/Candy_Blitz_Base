@@ -1,24 +1,23 @@
 "use client";
 import { ReactNode } from "react";
-import { base } from "wagmi/chains";
 import { createConfig, http, createStorage, cookieStorage, WagmiProvider } from "wagmi";
+import { base } from "wagmi/chains";
+import { baseAccount } from "wagmi/connectors";
 import { farcasterMiniApp } from "@farcaster/miniapp-wagmi-connector";
-import { coinbaseWallet } from "wagmi/connectors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { OnchainKitProvider } from "@coinbase/onchainkit";
 import "@coinbase/onchainkit/styles.css";
 
 const API_KEY = process.env.NEXT_PUBLIC_ONCHAINKIT_API_KEY;
 
-// Custom wagmi config with BOTH farcaster and coinbase connectors
-// farcasterMiniApp MUST be first so AutoConnect picks it up in Base App
+// Custom wagmi config per Base docs:
+// https://docs.base.org/mini-apps/core-concepts/base-account
 const wagmiConfig = createConfig({
   chains: [base],
   connectors: [
     farcasterMiniApp(),
-    coinbaseWallet({
+    baseAccount({
       appName: "Candy Blitz",
-      preference: "all",
     }),
   ],
   storage: createStorage({ storage: cookieStorage }),
