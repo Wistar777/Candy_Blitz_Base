@@ -52,19 +52,9 @@
         }
     </style>
 
-    <!-- Instant screen swap + overlay if wallet was previously connected -->
+    <!-- Wallet auto-connect no longer skips splash — user always sees start screen first -->
     <script>
-        if (localStorage.getItem('candyBlitz_walletProvider')) {
-            document.addEventListener('DOMContentLoaded', function () {
-                var splash = document.getElementById('startScreen');
-                var map = document.getElementById('mapScreen');
-                if (splash) splash.classList.add('hidden');
-                if (map) map.classList.remove('hidden');
-                // Show the blocking reconnect overlay
-                var overlay = document.getElementById('walletReconnectOverlay');
-                if (overlay) overlay.style.display = 'flex';
-            });
-        }
+        // Auto-connect still happens via React parent, but user stays on splash
     </script>
 
     <!-- Onboarding Overlay (shown once on first play) -->
