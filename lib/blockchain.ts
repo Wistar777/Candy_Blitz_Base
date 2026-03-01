@@ -1,6 +1,6 @@
 "use client";
 
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useReadContract } from "wagmi";
 import { useSendCalls } from "wagmi/experimental";
 import { encodeFunctionData } from "viem";
 import { CANDY_BLITZ_ADDRESS, CANDY_BLITZ_ABI } from "./contract";
@@ -49,61 +49,35 @@ export function usePlayerData(address?: `0x${string}`) {
     };
 }
 
-// ===== Submit Score (Sponsored via Paymaster, fallback to direct TX) =====
+// ===== Submit Score (Sponsored via Paymaster) =====
 
 export function useSubmitScore() {
-    // Sponsored path (Smart Wallets — useSendCalls with paymaster)
-    const {
-        sendCalls,
-        data: callsId,
-        isPending: isSendCallsPending,
-        error: sendCallsError,
-    } = useSendCalls();
-
-    // Fallback path (EOA wallets — useWriteContract)
-    const {
-        writeContract,
-        data: fallbackTxHash,
-        isPending: isWritePending,
-        error: writeError,
-    } = useWriteContract();
+    const { sendCalls, data: callsId, isPending, error: sendCallsError } = useSendCalls();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
     const [isSuccess, setIsSuccess] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
-    // Track fallback TX confirmation
-    const { isSuccess: fallbackIsSuccess } = useWaitForTransactionReceipt({
-        hash: fallbackTxHash,
-    });
-
-    // When sendCalls succeeds, extract hash from callsId
+    // When sendCalls succeeds
     const prevCallsIdRef = useRef<string | undefined>(undefined);
     useEffect(() => {
         const id = callsId?.id;
         if (id && id !== prevCallsIdRef.current) {
             prevCallsIdRef.current = id;
-            console.log(`[Contract] Sponsored TX batch submitted: ${id}`);
-            // For sendCalls, we treat the callsId as success signal
+            console.log(`[Contract] TX submitted: ${id}`);
             setIsSuccess(true);
             setTxHash(id as `0x${string}`);
         }
     }, [callsId]);
 
-    // When fallback TX confirms
-    useEffect(() => {
-        if (fallbackIsSuccess && fallbackTxHash) {
-            setIsSuccess(true);
-            setTxHash(fallbackTxHash);
-        }
-    }, [fallbackIsSuccess, fallbackTxHash]);
-
     // Track errors
     useEffect(() => {
-        if (sendCallsError) setError(sendCallsError);
-        if (writeError) setError(writeError);
-    }, [sendCallsError, writeError]);
+        if (sendCallsError) {
+            console.error("[Contract] sendCalls error:", sendCallsError);
+            setError(sendCallsError);
+        }
+    }, [sendCallsError]);
 
     const submitScore = useCallback(
         async (levelId: number, score: number, starCount: number) => {
@@ -127,42 +101,22 @@ export function useSubmitScore() {
             const dataWithSuffix = (callData + BUILDER_DATA_SUFFIX.slice(2)) as `0x${string}`;
 
             try {
-                if (PAYMASTER_URL) {
-                    // Try sponsored path first (Smart Wallets)
-                    console.log("[Contract] Attempting sponsored TX via Paymaster...");
-                    sendCalls({
-                        calls: [{
-                            to: CANDY_BLITZ_ADDRESS,
-                            data: dataWithSuffix,
-                        }],
-                        capabilities: {
-                            paymasterService: {
-                                url: PAYMASTER_URL,
-                            },
+                // Always use sendCalls — works with both farcasterMiniApp and baseAccount connectors
+                // If paymaster is configured, add paymasterService capability 
+                // The wallet will use it if supported, otherwise ignore it
+                console.log("[Contract] Submitting TX via sendCalls...", PAYMASTER_URL ? "(with paymaster)" : "(no paymaster)");
+
+                sendCalls({
+                    calls: [{
+                        to: CANDY_BLITZ_ADDRESS,
+                        data: dataWithSuffix,
+                    }],
+                    capabilities: PAYMASTER_URL ? {
+                        paymasterService: {
+                            url: PAYMASTER_URL,
                         },
-                    }, {
-                        onError: (err) => {
-                            // If sponsored fails (e.g. EOA wallet), fall back to direct TX
-                            console.warn("[Contract] Sponsored TX failed, falling back to direct TX:", err.message);
-                            writeContract({
-                                address: CANDY_BLITZ_ADDRESS,
-                                abi: CANDY_BLITZ_ABI,
-                                functionName: "submitScore",
-                                args: [levelId, BigInt(score), starCount],
-                                dataSuffix: BUILDER_DATA_SUFFIX,
-                            });
-                        },
-                    });
-                } else {
-                    // No paymaster configured — direct TX
-                    writeContract({
-                        address: CANDY_BLITZ_ADDRESS,
-                        abi: CANDY_BLITZ_ABI,
-                        functionName: "submitScore",
-                        args: [levelId, BigInt(score), starCount],
-                        dataSuffix: BUILDER_DATA_SUFFIX,
-                    });
-                }
+                    } : undefined,
+                });
             } catch (err) {
                 console.error("[Contract] submitScore failed:", err);
                 setError(err as Error);
@@ -170,13 +124,13 @@ export function useSubmitScore() {
                 setIsSubmitting(false);
             }
         },
-        [sendCalls, writeContract]
+        [sendCalls]
     );
 
     return {
         submitScore,
         txHash,
-        isPending: isSendCallsPending || isWritePending || isSubmitting,
+        isPending: isPending || isSubmitting,
         isConfirming: false,
         isSuccess,
         error,
