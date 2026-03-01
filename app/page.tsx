@@ -25,9 +25,13 @@ export default function Home() {
     if (isConnected) {
       setWalletModalOpen(true);
     } else {
-      // Smart Wallet only — auto-connect with first connector
-      const connector = connectors[0];
+      // Try farcaster connectors first (Base App / MiniKit)
+      const farcasterConnector = connectors.find(
+        (c) => c.type === "farcasterFrame" || c.type === "farcasterMiniApp"
+      );
+      const connector = farcasterConnector || connectors[0];
       if (connector) {
+        console.log(`[Wallet] Connecting via ${connector.type}: ${connector.name}`);
         connect({ connector });
       }
     }
