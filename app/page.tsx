@@ -20,16 +20,27 @@ export default function Home() {
     }
   }, [setMiniAppReady, isMiniAppReady]);
 
+  // Auto-close modal when wallet connects
+  useEffect(() => {
+    if (isConnected && walletModalOpen) {
+      setWalletModalOpen(false);
+    }
+  }, [isConnected, walletModalOpen]);
+
   // Called by game iframe via postMessage
   const openWalletModal = useCallback(() => {
     setWalletModalOpen(true);
   }, []);
 
   const handleConnect = useCallback(() => {
-    const connector = connectors[0];
-    if (connector) {
-      connect({ connector });
-      setWalletModalOpen(false);
+    // Try each connector until one works
+    for (const connector of connectors) {
+      try {
+        connect({ connector });
+        return;
+      } catch (e) {
+        console.warn(`[Wallet] Connector ${connector.name} failed:`, e);
+      }
     }
   }, [connect, connectors]);
 
