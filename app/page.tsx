@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useReconnect } from "wagmi";
 import { useMiniKit } from "@coinbase/onchainkit/minikit";
 import { Name, Avatar, Identity } from "@coinbase/onchainkit/identity";
 import { base } from "viem/chains";
@@ -10,7 +11,11 @@ import styles from "./page.module.css";
 export default function Home() {
   const { setMiniAppReady, isMiniAppReady } = useMiniKit();
   const { address, isConnected } = useAccount();
-  const [profileOpen, setProfileOpen] = useState(false);
+  const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
+  const { reconnect } = useReconnect();
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   useEffect(() => {
     if (!isMiniAppReady) {
@@ -18,24 +23,67 @@ export default function Home() {
     }
   }, [setMiniAppReady, isMiniAppReady]);
 
-  // Called by game iframe via postMessage (for profile button)
-  const openProfile = useCallback(() => {
-    setProfileOpen(true);
+  // Auto-close modal when wallet connects
+  useEffect(() => {
+    if (isConnected && walletModalOpen) {
+      setWalletModalOpen(false);
+      setIsSigningIn(false);
+    }
+  }, [isConnected, walletModalOpen]);
+
+  // Called by game iframe via postMessage
+  const openWalletModal = useCallback(() => {
+    setWalletModalOpen(true);
   }, []);
+
+  const handleSignIn = useCallback(async () => {
+    setIsSigningIn(true);
+    console.log("[Auth] Available connectors:", connectors.map(c => `${c.name} (${c.type})`));
+
+    try {
+      // First try useReconnect (restores previous session)
+      console.log("[Auth] Trying reconnect...");
+      reconnect();
+
+      // Give reconnect a moment to work
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // If still not connected, try connecting with first available connector
+      if (!document.hidden) {
+        for (const connector of connectors) {
+          try {
+            console.log(`[Auth] Trying connector: ${connector.name} (${connector.type})`);
+            connect({ connector });
+            return; // Exit on first successful attempt
+          } catch (err) {
+            console.warn(`[Auth] Connector ${connector.name} failed:`, err);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[Auth] Sign in error:", err);
+    }
+  }, [connectors, connect, reconnect]);
+
+  const handleDisconnect = useCallback(() => {
+    disconnect();
+    setWalletModalOpen(false);
+  }, [disconnect]);
 
   const handleOverlayClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
-      setProfileOpen(false);
+      setWalletModalOpen(false);
     }
   }, []);
 
   return (
     <div className={styles.container}>
-      {/* Profile modal overlay */}
-      {profileOpen && (
+      {/* Wallet modal overlay */}
+      {walletModalOpen && (
         <div className={styles.walletOverlay} onClick={handleOverlayClick}>
           <div className={styles.walletCard}>
             {isConnected && address ? (
+              /* Connected — show profile */
               <>
                 <div className={styles.walletHeader}>
                   <Identity
@@ -61,36 +109,39 @@ export default function Home() {
                   className={styles.walletAction}
                   onClick={() => {
                     window.open(`https://basescan.org/address/${address}`, "_blank");
-                    setProfileOpen(false);
+                    setWalletModalOpen(false);
                   }}
                 >
                   🔍 View on BaseScan
                 </button>
+                <button
+                  className={`${styles.walletAction} ${styles.disconnectBtn}`}
+                  onClick={handleDisconnect}
+                >
+                  🔌 Disconnect
+                </button>
               </>
             ) : (
+              /* Not connected — show Sign In */
               <>
-                <div className={styles.walletHeader}>
-                  <span style={{ fontSize: "28px" }}>⏳</span>
-                  <div>
-                    <div className={styles.userName}>Connecting...</div>
-                    <div className={styles.walletChain}>Wallet auto-connects via Base App</div>
-                  </div>
-                </div>
+                <h3 className={styles.walletTitle}>Sign In</h3>
+                <p className={styles.walletSub}>Sign in to play and save scores on Base</p>
+                <button
+                  className={styles.signInBtn}
+                  onClick={handleSignIn}
+                  disabled={isSigningIn}
+                >
+                  {isSigningIn ? "Signing in..." : "🔵 Sign In"}
+                </button>
               </>
             )}
-            <button
-              className={styles.walletAction}
-              onClick={() => setProfileOpen(false)}
-            >
-              ✕ Close
-            </button>
           </div>
         </div>
       )}
 
-      {/* Game iframe */}
-      <div className={profileOpen ? styles.iframeDimmed : styles.iframeFull}>
-        <GameWrapper onOpenWallet={openProfile} />
+      {/* Iframe — dimmed when wallet modal is open */}
+      <div className={walletModalOpen ? styles.iframeDimmed : styles.iframeFull}>
+        <GameWrapper onOpenWallet={openWalletModal} />
       </div>
     </div>
   );
