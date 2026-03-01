@@ -20,52 +20,7 @@
 </head>
 
 <body>
-    <!-- Wallet Reconnect Overlay (hidden by default, shown via inline script if wallet was connected) -->
-    <div id="walletReconnectOverlay" style="
-        display: none;
-        position: fixed; inset: 0; z-index: 9999;
-        background: rgba(10, 10, 25, 0.92);
-        backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-        justify-content: center; align-items: center; flex-direction: column; gap: 20px;
-    ">
-        <div style="
-            width: 56px; height: 56px;
-            border: 4px solid rgba(153, 69, 255, 0.2);
-            border-top-color: #9945ff;
-            border-radius: 50%;
-            animation: reconnectSpin 0.8s linear infinite;
-        "></div>
-        <p style="
-            color: #e0e0ff; font-family: 'Comfortaa', sans-serif;
-            font-size: 1.1rem; font-weight: 600; text-align: center;
-        ">Reconnecting wallet<span id="reconnectDots">...</span></p>
-        <p style="
-            color: rgba(255,255,255,0.4); font-family: 'Comfortaa', sans-serif;
-            font-size: 0.75rem;
-        ">Please wait</p>
-    </div>
-    <style>
-        @keyframes reconnectSpin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-
-    <!-- Instant screen swap + overlay if wallet was previously connected -->
-    <script>
-        if (localStorage.getItem('candyBlitz_walletProvider')) {
-            document.addEventListener('DOMContentLoaded', function () {
-                var splash = document.getElementById('startScreen');
-                var map = document.getElementById('mapScreen');
-                if (splash) splash.classList.add('hidden');
-                if (map) map.classList.remove('hidden');
-                // Show the blocking reconnect overlay
-                var overlay = document.getElementById('walletReconnectOverlay');
-                if (overlay) overlay.style.display = 'flex';
-            });
-        }
-    </script>
+    <!-- Wallet auto-connects via MiniKit - no manual reconnect needed -->
 
     <!-- Onboarding Tutorial (shown only once for new users) -->
     <div id="onboardingOverlay" style="
@@ -151,9 +106,8 @@
             <div class="splash-candies">🍬🍭🍫🍩🧁🍪</div>
             <h1 class="splash-title">Candy Blitz</h1>
             <p class="splash-sub">Match-3 on Base ⚡</p>
-            <p class="splash-desc">On-chain scores saved to <strong>Base L2</strong> — gasless transactions</p>
-            <button class="btn btn-wallet" id="walletBtn" onclick="openProfile()">🔵 Sign In</button>
-            <button class="btn btn-gold splash-btn hidden" id="playBtn" onclick="showMap()">🎮 Play</button>
+            <p class="splash-desc">On-chain scores saved to <strong>Base L2</strong> with gasless transactions</p>
+            <button class="btn btn-gold splash-btn" id="playBtn" onclick="showMap()">🎮 Play</button>
             <p class="splash-disclaimer">🔗 Scores saved on <strong>Base</strong> blockchain</p>
         </div>
     </div>
