@@ -20,10 +20,8 @@ export default function Home() {
 
   // Called by game iframe via postMessage (for profile button)
   const openProfile = useCallback(() => {
-    if (isConnected && address) {
-      setProfileOpen(true);
-    }
-  }, [isConnected, address]);
+    setProfileOpen(true);
+  }, []);
 
   const handleOverlayClick = useCallback((e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -34,38 +32,52 @@ export default function Home() {
   return (
     <div className={styles.container}>
       {/* Profile modal overlay */}
-      {profileOpen && isConnected && address && (
+      {profileOpen && (
         <div className={styles.walletOverlay} onClick={handleOverlayClick}>
           <div className={styles.walletCard}>
-            <div className={styles.walletHeader}>
-              <Identity
-                address={address}
-                chain={base}
-                className={styles.identityContainer}
-              >
-                <Avatar
-                  address={address}
-                  chain={base}
-                  className={styles.avatarImg}
-                />
-                <Name
-                  address={address}
-                  chain={base}
-                  className={styles.userName}
-                />
-              </Identity>
-              <div className={styles.walletChain}>Base</div>
-            </div>
-            <div className={styles.walletDivider} />
-            <button
-              className={styles.walletAction}
-              onClick={() => {
-                window.open(`https://basescan.org/address/${address}`, "_blank");
-                setProfileOpen(false);
-              }}
-            >
-              🔍 View on BaseScan
-            </button>
+            {isConnected && address ? (
+              <>
+                <div className={styles.walletHeader}>
+                  <Identity
+                    address={address}
+                    chain={base}
+                    className={styles.identityContainer}
+                  >
+                    <Avatar
+                      address={address}
+                      chain={base}
+                      className={styles.avatarImg}
+                    />
+                    <Name
+                      address={address}
+                      chain={base}
+                      className={styles.userName}
+                    />
+                  </Identity>
+                  <div className={styles.walletChain}>Base</div>
+                </div>
+                <div className={styles.walletDivider} />
+                <button
+                  className={styles.walletAction}
+                  onClick={() => {
+                    window.open(`https://basescan.org/address/${address}`, "_blank");
+                    setProfileOpen(false);
+                  }}
+                >
+                  🔍 View on BaseScan
+                </button>
+              </>
+            ) : (
+              <>
+                <div className={styles.walletHeader}>
+                  <span style={{ fontSize: "28px" }}>⏳</span>
+                  <div>
+                    <div className={styles.userName}>Connecting...</div>
+                    <div className={styles.walletChain}>Wallet auto-connects via Base App</div>
+                  </div>
+                </div>
+              </>
+            )}
             <button
               className={styles.walletAction}
               onClick={() => setProfileOpen(false)}
