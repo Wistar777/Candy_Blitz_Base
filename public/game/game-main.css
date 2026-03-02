@@ -1,4 +1,4 @@
-﻿/* ===== Variables ===== */
+/* ===== Variables ===== */
 :root {
     --pink-light: #c9b8ff;
     --pink: #9945FF;
@@ -60,6 +60,7 @@ body {
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(153, 69, 255, 0.2);
     animation: fadeInUp 0.5s ease-out;
+    overflow: hidden;
 }
 
 @keyframes fadeInUp {
