@@ -535,8 +535,8 @@ function renderMap() {
     const allCompleted = completedLevels.length >= LEVELS.length;
     if (allCompleted && positions.length > 0) {
         const lastPos = positions[positions.length - 1];
-        // Portal position: same Y as last level, but to the left
-        const portalX = 10;
+        // Portal position: mirror of last level (same distance from left as level is from right)
+        const portalX = 100 - lastPos.x;  // 65 → 35
         const portalY = lastPos.y;
 
         // Short path from last level to portal
