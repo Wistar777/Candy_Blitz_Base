@@ -24,7 +24,11 @@ export const minikitConfig = {
     subtitle: "On-chain Match-3 Game",
     description:
       "Match candies, beat records, climb the leaderboard — all on Base!",
-    screenshotUrls: [],
+    screenshotUrls: [
+      `${ROOT_URL}/screenshot1.jpg`,
+      `${ROOT_URL}/screenshot2.jpg`,
+      `${ROOT_URL}/screenshot3.jpg`,
+    ],
     iconUrl: `${ROOT_URL}/icon.png`,
     splashImageUrl: `${ROOT_URL}/splash.png`,
     splashBackgroundColor: "#0a0014",
