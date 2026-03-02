@@ -1140,7 +1140,7 @@ function setupTileTouch(tile, r, c) {
             } else {
                 tr += dy > 0 ? 1 : -1;
             }
-            if (tr >= 0 && tr < GRID && tc >= 0 && tc < GRID && !busy) {
+            if (tr >= 0 && tr < GRID && tc >= 0 && tc < GRID && !busy && !isHole(tr, tc) && !isHole(touchStart.r, touchStart.c)) {
                 selected = null;
                 clearHints();
                 playSound('swap');
@@ -1262,6 +1262,8 @@ function isAdj(a, b) {
 
 // ===== SWAP LOGIC =====
 async function trySwap(r1, c1, r2, c2) {
+    // Block swap if either cell is a hole
+    if (isHole(r1, c1) || isHole(r2, c2)) return;
     busy = true;
     combo = 0;
     clearHintTimer();
