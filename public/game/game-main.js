@@ -2270,6 +2270,80 @@ function updateProgressBar() {
 // ===== EFFECTS =====
 let comboFireTimeout = null;
 
+// ===== SCORE SAVE WITH RETRY =====
+async function attemptSaveScore(levelIndex, scoreVal, starCount, txLoading) {
+    try {
+        txLoading.querySelector('span').textContent = '⏳ Saving score...';
+        const erOk = await commitAndUndelegate(starCount);
+
+        if (erOk) {
+            txLoading.querySelector('span').textContent = '⏳ Confirming on Base...';
+            const settled = await waitForPDASettlement();
+
+            if (settled) {
+                txLoading.querySelector('span').textContent = '⏳ Saving score...';
+                const txOk = await submitScore(levelIndex, scoreVal, starCount);
+                if (txOk) {
+                    txLoading.querySelector('span').textContent = 'Saved on Base! ✅';
+                    return true;
+                } else {
+                    txLoading.querySelector('span').textContent = 'Transaction rejected ❌';
+                    return false;
+                }
+            } else {
+                txLoading.querySelector('span').textContent = 'Saved on Base! ⚡';
+                return true;
+            }
+        } else {
+            txLoading.querySelector('span').textContent = '⏳ Saving score...';
+            const fallbackOk = await submitScore(levelIndex, scoreVal, starCount);
+            if (fallbackOk) {
+                txLoading.querySelector('span').textContent = 'Saved on-chain! ✅';
+                return true;
+            } else {
+                txLoading.querySelector('span').textContent = 'Transaction rejected ❌';
+                return false;
+            }
+        }
+    } catch (e) {
+        console.error('[TX] Score submission error:', e);
+        txLoading.querySelector('span').textContent = 'Transaction failed ❌';
+        return false;
+    }
+}
+
+async function retrySaveScore() {
+    const pending = window._pendingScore;
+    if (!pending) return;
+
+    const winMapBtn = document.getElementById('winMapBtn');
+    const txLoading = document.getElementById('winTxLoading');
+    const retryBtn = document.getElementById('winRetryBtn');
+    const txError = document.getElementById('winTxError');
+
+    retryBtn.classList.add('hidden');
+    txError.classList.add('hidden');
+    txLoading.classList.remove('hidden');
+
+    const saved = await attemptSaveScore(pending.levelIndex, pending.score, pending.starCount, txLoading);
+
+    if (saved) {
+        window._pendingScore = null;
+        setTimeout(() => {
+            winMapBtn.disabled = false;
+            winMapBtn.classList.remove('btn-disabled');
+            txLoading.classList.add('hidden');
+        }, 1500);
+    } else {
+        txLoading.classList.add('hidden');
+        retryBtn.classList.remove('hidden');
+        txError.classList.remove('hidden');
+    }
+}
+
+// Expose to global scope for inline onclick
+window.retrySaveScore = retrySaveScore;
+
 async function endGame() {
     if (gameEnded) return;
     gameEnded = true;
@@ -2346,46 +2420,37 @@ async function endGame() {
         // --- Blockchain transaction: block button until confirmed ---
         const winMapBtn = document.getElementById('winMapBtn');
         const txLoading = document.getElementById('winTxLoading');
+        const retryBtn = document.getElementById('winRetryBtn');
+        const txError = document.getElementById('winTxError');
 
         if (isConnected()) {
+            // Save pending score data for retry
+            window._pendingScore = { levelIndex: currentLevelIndex, score, starCount };
+
             winMapBtn.disabled = true;
             winMapBtn.classList.add('btn-disabled');
+            retryBtn.classList.add('hidden');
+            txError.classList.add('hidden');
             txLoading.classList.remove('hidden');
 
-            try {
-                // Step 1: Commit score on ER + undelegate PDA (no wallet popup)
-                txLoading.querySelector('span').textContent = '⚡ Saving score...';
-                const erOk = await commitAndUndelegate(starCount);
+            const saved = await attemptSaveScore(currentLevelIndex, score, starCount, txLoading);
 
-                if (erOk) {
-                    // Step 2: Wait for PDA to return to our program on Devnet
-                    txLoading.querySelector('span').textContent = '⏳ Confirming on Base...';
-                    const settled = await waitForPDASettlement();
-
-                    if (settled) {
-                        // Step 3: Submit score to Devnet (1 wallet popup for leaderboard)
-                        txLoading.querySelector('span').textContent = '⏳ Saving score...';
-                        const txOk = await submitScore(currentLevelIndex, score, starCount);
-                        txLoading.querySelector('span').textContent = txOk ? 'Saved on Base! ✅' : 'Saving pending ⚡';
-                    } else {
-                        txLoading.querySelector('span').textContent = 'Saved on Base! ⚡';
-                    }
-                } else {
-                    // Fallback — direct submit
-                    txLoading.querySelector('span').textContent = '⏳ Saving score...';
-                    const fallbackOk = await submitScore(currentLevelIndex, score, starCount);
-                    txLoading.querySelector('span').textContent = fallbackOk ? 'Saved on-chain! ✅' : 'Could not save ⚠️';
-                }
-            } catch (e) {
-                console.error('[TX] Score submission error:', e);
-                txLoading.querySelector('span').textContent = 'Transaction failed ❌';
-            }
-
-            setTimeout(() => {
-                winMapBtn.disabled = false;
-                winMapBtn.classList.remove('btn-disabled');
+            if (saved) {
+                // Success — unlock button
+                window._pendingScore = null;
+                setTimeout(() => {
+                    winMapBtn.disabled = false;
+                    winMapBtn.classList.remove('btn-disabled');
+                    txLoading.classList.add('hidden');
+                    retryBtn.classList.add('hidden');
+                    txError.classList.add('hidden');
+                }, 1500);
+            } else {
+                // Failed — show retry, keep button locked
                 txLoading.classList.add('hidden');
-            }, 3000);
+                retryBtn.classList.remove('hidden');
+                txError.classList.remove('hidden');
+            }
         }
 
         // If first full completion, replace "To Map" button behavior
