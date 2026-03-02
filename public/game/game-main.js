@@ -433,13 +433,13 @@ function renderMap() {
 
     const totalLevels = LEVELS.length;
     const rowHeight = 130;
-    const mapHeight = (totalLevels + 1) * rowHeight;
+    const mapHeight = (totalLevels + 2) * rowHeight;
     container.style.minHeight = mapHeight + 'px';
     const positions = [];
     for (let i = 0; i < totalLevels; i++) {
         const row = totalLevels - 1 - i;
         const xPct = (i % 2 === 0) ? 35 : 65;
-        const y = rowHeight * 0.8 + row * rowHeight;
+        const y = rowHeight * 1.8 + row * rowHeight;
         positions.push({ x: xPct, y: y });
     }
     const svgNS = 'http://www.w3.org/2000/svg';
