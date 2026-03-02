@@ -96,10 +96,7 @@ window.connectWallet = function () { connectWallet(); };
 window.openProfile = function () { openProfile(); };
 
 // Callback: runs after wallet successfully connects
-onWalletConnect(() => {
-    // Show the Play button
-    const playBtn = document.getElementById('playBtn');
-    if (playBtn) playBtn.classList.remove('hidden');
+onWalletConnect(async () => {
     // Update wallet button on splash
     const walletBtn = document.getElementById('walletBtn');
     if (walletBtn) {
@@ -117,6 +114,51 @@ onWalletConnect(() => {
     // Load wallet-specific progress (localStorage first, then on-chain)
     loadWalletProgress();
     renderMap();
+
+    // --- Newcomer detection: check if wallet is in leaderboard ---
+    const profileCheck = document.getElementById('profileCheck');
+    const tutorialBtn = document.getElementById('tutorialBtn');
+    const playBtn = document.getElementById('playBtn');
+
+    // Show loading state
+    if (profileCheck) {
+        profileCheck.classList.remove('hidden');
+        profileCheck.style.display = 'flex';
+    }
+    if (tutorialBtn) tutorialBtn.classList.add('hidden');
+    if (playBtn) playBtn.classList.add('hidden');
+
+    try {
+        const leaderboard = await fetchLeaderboard();
+        const myAddr = getWalletAddress().toLowerCase();
+        const isNewcomer = !leaderboard.some(entry =>
+            (entry.address || entry.player || '').toLowerCase() === myAddr
+        );
+
+        // Hide loading
+        if (profileCheck) {
+            profileCheck.classList.add('hidden');
+            profileCheck.style.display = 'none';
+        }
+
+        if (isNewcomer) {
+            // New player — show Tutorial button
+            if (tutorialBtn) tutorialBtn.classList.remove('hidden');
+            if (playBtn) playBtn.classList.add('hidden');
+        } else {
+            // Returning player — show Play button directly
+            if (tutorialBtn) tutorialBtn.classList.add('hidden');
+            if (playBtn) playBtn.classList.remove('hidden');
+        }
+    } catch (e) {
+        console.warn('[Profile] Leaderboard check failed, showing Play:', e);
+        // On error — show Play button as fallback
+        if (profileCheck) {
+            profileCheck.classList.add('hidden');
+            profileCheck.style.display = 'none';
+        }
+        if (playBtn) playBtn.classList.remove('hidden');
+    }
 
     // Restore progress from on-chain (overrides localStorage if newer)
     (async () => {
@@ -749,6 +791,17 @@ function showOnboarding(levelIndex) {
     }
 }
 
+// Called from Tutorial button on splash screen
+function startTutorialFromSplash() {
+    pendingLevelIndex = null; // No pending level, just tutorial
+    const overlay = document.getElementById('onboardingOverlay');
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'flex';
+        showOnboardingSlide(0);
+    }
+}
+
 let currentOnboardingSlide = 0;
 const totalOnboardingSlides = 3;
 
@@ -766,7 +819,7 @@ function showOnboardingSlide(index) {
     // Update buttons
     const nextBtn = document.getElementById('onbNextBtn');
     if (nextBtn) {
-        nextBtn.textContent = index === totalOnboardingSlides - 1 ? 'Play! 🎮' : 'Next →';
+        nextBtn.textContent = index === totalOnboardingSlides - 1 ? 'Got it! 🎮' : 'Next →';
     }
 }
 
@@ -779,15 +832,21 @@ function onboardingNext() {
 }
 
 function dismissOnboarding() {
-    localStorage.setItem('candyBlitz_onboarding_done', '1');
     const overlay = document.getElementById('onboardingOverlay');
     if (overlay) {
         overlay.classList.add('hidden');
         overlay.style.display = 'none';
     }
     if (pendingLevelIndex !== null) {
+        // Came from startLevel — continue to the level
         startLevel(pendingLevelIndex);
         pendingLevelIndex = null;
+    } else {
+        // Came from splash Tutorial button — show Play button
+        const tutorialBtn = document.getElementById('tutorialBtn');
+        const playBtn = document.getElementById('playBtn');
+        if (tutorialBtn) tutorialBtn.classList.add('hidden');
+        if (playBtn) playBtn.classList.remove('hidden');
     }
 }
 
@@ -795,15 +854,10 @@ function dismissOnboarding() {
 window.showOnboardingSlide = showOnboardingSlide;
 window.onboardingNext = onboardingNext;
 window.dismissOnboarding = dismissOnboarding;
+window.startTutorialFromSplash = startTutorialFromSplash;
 
 // ===== GAME =====
 function startLevel(levelIndex) {
-    // Show onboarding on first play
-    if (!localStorage.getItem('candyBlitz_onboarding_done')) {
-        showOnboarding(levelIndex);
-        return;
-    }
-
     currentLevelIndex = levelIndex;
     const level = LEVELS[levelIndex];
 
@@ -2536,24 +2590,7 @@ renderMap();
 
     const reconnected = await tryAutoReconnect();
     if (reconnected) {
-        // Wallet reconnected — update UI but stay on splash screen
-        const playBtn = document.getElementById('playBtn');
-        if (playBtn) playBtn.classList.remove('hidden');
-        const walletBtn = document.getElementById('walletBtn');
-        if (walletBtn) {
-            const addr = getWalletAddress();
-            walletBtn.textContent = '🔗 ' + addr.slice(0, 6) + '...' + addr.slice(-4);
-            walletBtn.classList.add('connected');
-        }
-        const mapBtn = document.getElementById('walletBtnMap');
-        if (mapBtn) {
-            mapBtn.textContent = '🔗';
-            mapBtn.title = getWalletAddress();
-            mapBtn.classList.remove('wallet-reconnecting');
-        }
-        loadWalletProgress();
-        renderMap();
-        // Stay on splash — user presses Play to go to map
+        // Wallet reconnected — onWalletConnect callback handles UI + newcomer check
         dismissReconnectOverlay();
     } else {
         dismissReconnectOverlay();

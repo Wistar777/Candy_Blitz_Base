@@ -224,6 +224,11 @@
             <p class="splash-sub">Match-3 on Base ⚡</p>
             <p class="splash-desc">On-chain scores saved to <strong>Base L2</strong> — gasless transactions</p>
             <button class="btn btn-wallet" id="walletBtn" onclick="openProfile()">🔗 Connect Wallet</button>
+            <div id="profileCheck" class="hidden" style="display:none; align-items:center; justify-content:center; gap:8px; padding:10px 0; color:#FFD700; font-size:0.9rem; font-weight:600;">
+                <div class="tx-spinner"></div>
+                <span>Checking your profile...</span>
+            </div>
+            <button class="btn btn-gold splash-btn hidden" id="tutorialBtn" onclick="startTutorialFromSplash()">🎓 Tutorial</button>
             <button class="btn btn-gold splash-btn hidden" id="playBtn" onclick="showMap()">🎮 Play</button>
             <p class="splash-disclaimer">🔗 Scores saved on <strong>Base</strong> blockchain</p>
         </div>
