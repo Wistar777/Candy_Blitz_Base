@@ -1180,6 +1180,7 @@ function clickTile(r, c) {
                 const counts = {};
                 for (let rr = 0; rr < GRID; rr++)
                     for (let cc = 0; cc < GRID; cc++) {
+                        if (isHole(rr, cc)) continue;
                         const t = board[rr][cc];
                         if (t !== null) counts[t] = (counts[t] || 0) + 1;
                     }
@@ -1726,7 +1727,7 @@ async function activateRainbow(r, c, targetType) {
     if (targetType !== null) {
         for (let rr = 0; rr < GRID; rr++) {
             for (let cc = 0; cc < GRID; cc++) {
-                if (board[rr][cc] === targetType) cleared.add(`${rr},${cc}`);
+                if (!isHole(rr, cc) && board[rr][cc] === targetType) cleared.add(`${rr},${cc}`);
             }
         }
     }
