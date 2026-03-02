@@ -3,7 +3,7 @@ import { Storage } from './storage.js';
 import { STAR_THRESHOLDS, LEVELS, GRID, HINT_DELAY, CANDY_TILES } from './config.js';
 import { initAudio, playSound, startMusic, stopMusic, toggleMusic, changeVolume, changeSfxVolume, getMusicVolume, getSfxVolume } from './audio.js';
 import { showCombo, spawnRocketTrail, spawnBombShockwave, spawnRainbowWave, spawnLightningEffect, spawnGodRays, spawnLightBurst, showCinematicVignette, showScreenTint, boardCinematicZoom, showCompliment, spawnParticles, showScorePopup, createConfetti, startFireworks, stopFireworks } from './effects.js';
-import { initBlockchain, connectWallet, disconnectWallet, submitScore, isConnected, getWalletAddress, onWalletConnect, onWalletDisconnect, openProfile, getWalletStorageKey, tryAutoReconnect, fetchLeaderboard, getWalletBalance, startGameSession, recordSwap, delegatePlayerAccount, startSessionOnER, recordSwapOnER, commitAndUndelegate, fetchPlayerProgress, waitForPDASettlement } from './blockchain-bridge.js';
+import { initBlockchain, connectWallet, disconnectWallet, submitScore, isConnected, getWalletAddress, onWalletConnect, onWalletDisconnect, openProfile, getWalletStorageKey, tryAutoReconnect, fetchLeaderboard, getWalletBalance, startGameSession, recordSwap, delegatePlayerAccount, startSessionOnER, recordSwapOnER, commitAndUndelegate, fetchPlayerProgress, waitForPDASettlement, resolveAddresses } from './blockchain-bridge.js';
 
 // Expose globals for HTML inline events
 window.openSettings = openSettings;
@@ -32,6 +32,11 @@ window.openLeaderboard = async function () {
 
         const myWallet = isConnected() ? getWalletAddress() : '';
 
+        // Resolve all addresses to Basenames
+        const allAddresses = players.slice(0, 20).map(e => e.player);
+        if (myWallet && !allAddresses.includes(myWallet)) allAddresses.push(myWallet);
+        const names = await resolveAddresses(allAddresses);
+
         let rank = 1;
         let myRank = -1;
         let myEntry = null;
@@ -46,14 +51,15 @@ window.openLeaderboard = async function () {
         for (const entry of players.slice(0, 20)) {
             const row = document.createElement('div');
             row.className = 'lb-row';
-            const shortAddr = entry.player.substring(0, 4) + '...' + entry.player.substring(entry.player.length - 4);
             const isMe = entry.player === myWallet;
-            const nameStyle = isMe ? 'color: #14F195; font-weight: 700;' : '';
+            const basename = names[entry.player.toLowerCase()];
+            const displayName = basename ? basename : `Player #${rank}`;
             const meTag = isMe ? ' (you)' : '';
+            const nameStyle = isMe ? 'color: #14F195; font-weight: 700;' : '';
 
             row.innerHTML = `
                 <span class="lb-rank">${rank}</span>
-                <span class="lb-player" style="${nameStyle}" title="${entry.player}">${shortAddr}${meTag}</span>
+                <span class="lb-player" style="${nameStyle}" title="${entry.player}">${displayName}${meTag}</span>
                 <span class="lb-score">${entry.totalScore.toLocaleString()}</span>
             `;
             table.appendChild(row);
@@ -69,10 +75,11 @@ window.openLeaderboard = async function () {
 
             const myRow = document.createElement('div');
             myRow.className = 'lb-row';
-            const shortAddr = myEntry.player.substring(0, 4) + '...' + myEntry.player.substring(myEntry.player.length - 4);
+            const myBasename = names[myEntry.player.toLowerCase()];
+            const myDisplayName = myBasename ? myBasename : `Player #${myRank}`;
             myRow.innerHTML = `
                 <span class="lb-rank">${myRank}</span>
-                <span class="lb-player" style="color: #14F195; font-weight: 700;" title="${myEntry.player}">${shortAddr} (you)</span>
+                <span class="lb-player" style="color: #14F195; font-weight: 700;" title="${myEntry.player}">${myDisplayName} (you)</span>
                 <span class="lb-score">${myEntry.totalScore.toLocaleString()}</span>
             `;
             table.appendChild(myRow);
@@ -99,16 +106,24 @@ window.openProfile = function () { openProfile(); };
 onWalletConnect(async () => {
     // Update wallet button on splash
     const walletBtn = document.getElementById('walletBtn');
+    const addr = getWalletAddress();
     if (walletBtn) {
-        const addr = getWalletAddress();
-        walletBtn.textContent = '🔗 ' + addr.slice(0, 6) + '...' + addr.slice(-4);
+        // Show shortened address first, then resolve basename
+        walletBtn.textContent = '👤 ' + addr.slice(0, 6) + '...' + addr.slice(-4);
         walletBtn.classList.add('connected');
+        // Async: resolve basename and update
+        resolveAddresses([addr]).then(names => {
+            const basename = names[addr.toLowerCase()];
+            if (basename && walletBtn) {
+                walletBtn.textContent = '👤 ' + basename;
+            }
+        });
     }
     // Update wallet button on map
     const mapBtn = document.getElementById('walletBtnMap');
     if (mapBtn) {
         mapBtn.textContent = '🔗';
-        mapBtn.title = getWalletAddress();
+        mapBtn.title = addr;
         mapBtn.classList.remove('wallet-reconnecting');
     }
     // Load wallet-specific progress (localStorage first, then on-chain)

@@ -166,3 +166,42 @@ export async function waitForPDASettlement() {
     // On Base, no PDA settlement needed
     return true;
 }
+
+// ===== BASENAME RESOLUTION =====
+const _nameCache = {};
+
+export async function resolveAddresses(addresses) {
+    if (!addresses || addresses.length === 0) return {};
+
+    // Check which addresses we still need to resolve
+    const uncached = addresses.filter(a => !(a.toLowerCase() in _nameCache));
+
+    if (uncached.length > 0) {
+        try {
+            const resp = await fetch('/api/resolve-names', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ addresses: uncached }),
+            });
+            const names = await resp.json();
+            // Store results in cache (including nulls for addresses without names)
+            for (const addr of uncached) {
+                _nameCache[addr.toLowerCase()] = names[addr.toLowerCase()] || null;
+            }
+        } catch (e) {
+            console.warn('[resolveAddresses] API failed:', e);
+            // Cache as null so we don't retry
+            for (const addr of uncached) {
+                _nameCache[addr.toLowerCase()] = null;
+            }
+        }
+    }
+
+    // Build result from cache
+    const result = {};
+    for (const addr of addresses) {
+        const name = _nameCache[addr.toLowerCase()];
+        if (name) result[addr.toLowerCase()] = name;
+    }
+    return result;
+}
