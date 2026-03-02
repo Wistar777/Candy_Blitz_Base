@@ -3360,3 +3360,247 @@ h2 {
         opacity: 1;
     }
 }
+
+/* ===== World Portal Teaser ===== */
+.world-portal {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    z-index: 15;
+    animation: portalFloat 3s ease-in-out infinite;
+}
+
+.world-portal-glow {
+    position: absolute;
+    inset: -15px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(153, 50, 204, 0.5) 0%, transparent 70%);
+    animation: portalPulse 2s ease-in-out infinite;
+}
+
+.world-portal-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    background: conic-gradient(from 0deg, #9945FF, #14F195, #FFD700, #FF6B6B, #9945FF) border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: portalSpin 4s linear infinite;
+}
+
+.world-portal-inner {
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #1a0030 0%, #0a0014 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.world-portal-icon {
+    font-size: 1.8rem;
+    animation: portalSpin 6s linear infinite reverse;
+}
+
+.world-portal-label {
+    font-size: 0.55rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+}
+
+.world-portal-lock {
+    font-size: 0.7rem;
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background: rgba(10, 0, 20, 0.8);
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes portalSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes portalFloat {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) translateY(-8px);
+    }
+}
+
+@keyframes portalPulse {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+}
+
+/* Coming Soon Modal */
+.coming-soon-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.coming-soon-modal {
+    background: linear-gradient(135deg, rgba(30, 10, 60, 0.95), rgba(10, 0, 20, 0.95));
+    border: 1px solid rgba(153, 50, 204, 0.4);
+    border-radius: 20px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    max-width: 300px;
+    width: 85%;
+    box-shadow: 0 0 40px rgba(153, 50, 204, 0.3), inset 0 0 30px rgba(153, 50, 204, 0.1);
+    animation: modalSlideUp 0.4s ease;
+}
+
+.coming-soon-modal h2 {
+    font-size: 1.5rem;
+    margin: 0 0 0.3rem;
+    background: linear-gradient(135deg, #FFD700, #FF6B6B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.coming-soon-modal .modal-subtitle {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.85rem;
+    margin: 0 0 1.2rem;
+}
+
+.coming-soon-candies {
+    font-size: 2rem;
+    letter-spacing: 4px;
+    margin: 1rem 0;
+    animation: shimmerCandies 3s ease-in-out infinite;
+}
+
+.coming-soon-modal .modal-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #9945FF, #14F195);
+    color: white;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 6px 16px;
+    border-radius: 20px;
+    margin: 0.8rem 0;
+}
+
+.coming-soon-modal .modal-close {
+    display: block;
+    margin: 1rem auto 0;
+    padding: 10px 30px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.coming-soon-modal .modal-close:active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes modalSlideUp {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes shimmerCandies {
+
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(1.3);
+    }
+}
+
+/* World 2 Teaser on Congrats Screen */
+.world2-teaser {
+    margin: 1rem 0 0.5rem;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(153, 50, 204, 0.2), rgba(20, 241, 149, 0.1));
+    border: 1px solid rgba(153, 50, 204, 0.3);
+    animation: shimmerTeaser 3s ease-in-out infinite;
+}
+
+.world2-teaser-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #9945FF, #14F195);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+}
+
+.world2-teaser-sub {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 2px 0 0;
+}
+
+@keyframes shimmerTeaser {
+
+    0%,
+    100% {
+        border-color: rgba(153, 50, 204, 0.3);
+    }
+
+    50% {
+        border-color: rgba(20, 241, 149, 0.5);
+    }
+}

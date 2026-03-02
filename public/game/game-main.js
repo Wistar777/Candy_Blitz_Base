@@ -531,8 +531,50 @@ function renderMap() {
 
     justUnlockedId = null;
 
+    // ===== World 2 Portal (only after ALL levels completed) =====
+    const allCompleted = completedLevels.length >= LEVELS.length;
+    if (allCompleted && positions.length > 0) {
+        const lastPos = positions[positions.length - 1];
+        // Portal position: above last level, opposite side
+        const portalX = lastPos.x === 35 ? 65 : 35;
+        const portalY = lastPos.y - rowHeight;
+
+        // Extend SVG path to portal
+        const pathToPortal = document.createElementNS(svgNS, 'path');
+        const cpY = (lastPos.y + portalY) / 2;
+        pathToPortal.setAttribute('d', `M ${lastPos.x} ${lastPos.y} C ${lastPos.x} ${cpY}, ${portalX} ${cpY}, ${portalX} ${portalY}`);
+        pathToPortal.setAttribute('fill', 'none');
+        pathToPortal.setAttribute('stroke', 'rgba(153, 50, 204, 0.5)');
+        pathToPortal.setAttribute('stroke-width', '3');
+        pathToPortal.setAttribute('stroke-dasharray', '6 4');
+        pathToPortal.setAttribute('stroke-linecap', 'round');
+        svg.appendChild(pathToPortal);
+
+        // Portal element
+        const portal = document.createElement('div');
+        portal.className = 'world-portal';
+        portal.style.left = portalX + '%';
+        portal.style.top = portalY + 'px';
+        portal.innerHTML = `
+            <div class="world-portal-glow"></div>
+            <div class="world-portal-ring"></div>
+            <div class="world-portal-inner">
+                <span class="world-portal-icon">🌀</span>
+                <span class="world-portal-label">WORLD 2</span>
+            </div>
+            <div class="world-portal-lock">🔒</div>
+        `;
+        portal.onclick = showComingSoonPopup;
+        container.appendChild(portal);
+
+        // Adjust map height to include portal
+        container.style.minHeight = (mapHeight + rowHeight) + 'px';
+    }
+
     const completed = completedLevels.length;
-    document.getElementById('progressText').textContent = `${completed}/${LEVELS.length} levels completed`;
+    document.getElementById('progressText').textContent = allCompleted
+        ? `${completed}/${LEVELS.length} levels completed ✨`
+        : `${completed}/${LEVELS.length} levels completed`;
 
     // Auto-scroll to current level
     const scrollContainer = document.getElementById('mapScroll');
@@ -545,6 +587,38 @@ function renderMap() {
             }
         });
     }
+}
+
+// ===== Coming Soon Popup =====
+function showComingSoonPopup() {
+    // Remove existing modal if any
+    const existing = document.querySelector('.coming-soon-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'coming-soon-overlay';
+    overlay.innerHTML = `
+        <div class="coming-soon-modal">
+            <h2>✨ Pastry Paradise</h2>
+            <p class="modal-subtitle">World 2 — Coming Soon</p>
+            <div class="coming-soon-candies">🍰🧇🥞🍮🎂🥧</div>
+            <div class="modal-badge">NEW WORLD • NEW CANDIES</div>
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-top: 0.8rem;">
+                6 new levels with unique challenges await!
+            </p>
+            <button class="modal-close">Got it! 🍬</button>
+        </div>
+    `;
+
+    // Close on backdrop or button click
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay || e.target.classList.contains('modal-close')) {
+            overlay.remove();
+        }
+    });
+
+    document.body.appendChild(overlay);
+    playSound('select');
 }
 
 // ===== MAP ZOOM & PAN =====
