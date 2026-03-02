@@ -41,5 +41,6 @@ export const minikitConfig = {
     ogTitle: "Candy Blitz",
     ogDescription: "On-chain Match-3 Game on Base",
     ogImageUrl: `${ROOT_URL}/hero.png`,
+    noindex: false,
   },
 } as const;
