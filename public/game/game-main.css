@@ -3182,10 +3182,10 @@ h2 {
     left: 15px;
     width: 40px;
     height: 40px;
-    background: rgba(20, 20, 45, 0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(153, 69, 255, 0.3);
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
     border-radius: 50%;
     cursor: pointer;
     font-size: 1.2rem;
@@ -3196,7 +3196,6 @@ h2 {
     z-index: 10;
     padding: 0;
     line-height: 1;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .wallet-gear:hover {
