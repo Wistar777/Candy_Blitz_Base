@@ -5,8 +5,10 @@
 
 let _connected = false;
 let _walletAddress = '';
+let _walletBasename = '';
 let _onConnectCbs = [];
 let _onDisconnectCbs = [];
+const _nameCache = {};
 
 // Listen for messages from React parent
 window.addEventListener('message', (event) => {
@@ -15,12 +17,28 @@ window.addEventListener('message', (event) => {
         case 'wallet-connected':
             _connected = true;
             _walletAddress = data.address || '';
+            _walletBasename = '';
             _onConnectCbs.forEach(cb => cb());
             break;
         case 'wallet-disconnected':
             _connected = false;
             _walletAddress = '';
+            _walletBasename = '';
             _onDisconnectCbs.forEach(cb => cb());
+            break;
+        case 'wallet-basename':
+            if (data?.basename) {
+                _walletBasename = data.basename;
+                // Also populate the name cache so leaderboard can use it
+                if (data.address) {
+                    _nameCache[data.address.toLowerCase()] = data.basename;
+                }
+                // Update wallet button if visible
+                const walletBtn = document.getElementById('walletBtn');
+                if (walletBtn && walletBtn.classList.contains('connected')) {
+                    walletBtn.textContent = '👤 ' + data.basename;
+                }
+            }
             break;
         case 'score-confirmed':
             // Resolve the pending submitScore promise
@@ -168,7 +186,6 @@ export async function waitForPDASettlement() {
 }
 
 // ===== BASENAME RESOLUTION =====
-const _nameCache = {};
 
 export async function resolveAddresses(addresses) {
     if (!addresses || addresses.length === 0) return {};

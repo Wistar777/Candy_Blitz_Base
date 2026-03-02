@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef } from "react";
 import { useAccount } from "wagmi";
 import { useSubmitScore, usePlayerData, useLeaderboard } from "@/lib/blockchain";
+import { getName } from "@coinbase/onchainkit/identity";
+import { base } from "viem/chains";
 
 interface GameWrapperProps {
     onOpenWallet: () => void;
@@ -33,10 +35,17 @@ export default function GameWrapper({ onOpenWallet }: GameWrapperProps) {
         iframeRef.current?.contentWindow?.postMessage({ type, data }, "*");
     }, []);
 
-    // When wallet connects/disconnects, notify the game
+    // When wallet connects/disconnects, notify the game (with basename)
     useEffect(() => {
         if (isConnected && address) {
+            // Send address immediately
             sendToGame("wallet-connected", { address });
+            // Then resolve basename and send update
+            getName({ address, chain: base }).then((basename) => {
+                if (basename) {
+                    sendToGame("wallet-basename", { address, basename });
+                }
+            }).catch(() => { });
         } else {
             sendToGame("wallet-disconnected");
         }

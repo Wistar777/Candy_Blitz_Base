@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createPublicClient, http } from "viem";
+import { getName } from "@coinbase/onchainkit/identity";
 import { base } from "viem/chains";
-import { normalize } from "viem/ens";
 
-const client = createPublicClient({
-    chain: base,
-    transport: http(),
-});
-
-// Simple in-memory cache (lives for the lifetime of the serverless function)
+// Simple in-memory cache
 const nameCache: Record<string, string | null> = {};
 
 async function resolveBasename(address: string): Promise<string | null> {
@@ -16,10 +10,9 @@ async function resolveBasename(address: string): Promise<string | null> {
     if (lower in nameCache) return nameCache[lower];
 
     try {
-        // Base L2 ENS reverse resolution
-        const name = await client.getEnsName({
+        const name = await getName({
             address: address as `0x${string}`,
-            universalResolverAddress: "0xC6d566A56A1aFf6508b41f6c90ff131615583BCD",
+            chain: base,
         });
         nameCache[lower] = name || null;
         return name || null;
