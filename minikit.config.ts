@@ -26,6 +26,7 @@ export const minikitConfig = {
       "Match candies, beat records, climb the leaderboard — all on Base!",
     screenshotUrls: [],
     iconUrl: `${ROOT_URL}/icon.png`,
+    splashImageUrl: `${ROOT_URL}/splash.png`,
     splashBackgroundColor: "#0a0014",
     homeUrl: ROOT_URL,
     webhookUrl: `${ROOT_URL}/api/webhook`,
