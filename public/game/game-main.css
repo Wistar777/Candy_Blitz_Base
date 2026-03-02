@@ -346,7 +346,7 @@ h2 {
     position: relative;
     width: 100%;
     min-height: 900px;
-    background: url('photos/map-bg.png') center top / cover no-repeat;
+    background: url('photos/map-bg.webp') center top / cover no-repeat;
     padding: 40px 0;
 }
 
