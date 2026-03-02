@@ -2382,6 +2382,9 @@ async function retrySaveScore() {
     const saved = await attemptSaveScore(pending.levelIndex, pending.score, pending.starCount, txLoading);
 
     if (saved) {
+        // TX success on retry — NOW save progress to localStorage
+        const levelId = LEVELS[pending.levelIndex].id;
+        saveProgressLocally(levelId, pending.score, pending.starCount, pending.levelIndex);
         window._pendingScore = null;
         setTimeout(() => {
             winMapBtn.disabled = false;
@@ -2408,26 +2411,11 @@ async function endGame() {
         playSound('win');
 
         const level = LEVELS[currentLevelIndex];
-        if (!completedLevels.includes(level.id)) {
-            completedLevels.push(level.id);
-            Storage.save(storageKey('completed'), completedLevels);
-            // Mark next level for unlock animation
-            if (currentLevelIndex + 1 < LEVELS.length) {
-                justUnlockedId = LEVELS[currentLevelIndex + 1].id;
-            }
-        }
 
-        // Calculate stars
+        // Calculate stars (needed for UI, but NOT saved yet)
         const starCount = getStarCount(score);
-        const prevStars = bestStars[level.id] || 0;
-        if (starCount > prevStars) {
-            bestStars[level.id] = starCount;
-            Storage.save(storageKey('bestStars'), bestStars);
-        }
 
-        saveBestScore(level.id, score);
-
-        // Update win screen
+        // Update win screen (UI only — no localStorage yet)
         document.getElementById('winScore').textContent = score;
 
         // Star display with animation
@@ -2444,11 +2432,14 @@ async function endGame() {
         }
 
         // Check if this is the first-ever completion of all levels
-        const allCompleted = completedLevels.length >= LEVELS.length;
+        const wouldComplete = !completedLevels.includes(level.id);
+        const allWouldBeCompleted = wouldComplete
+            ? completedLevels.length + 1 >= LEVELS.length
+            : completedLevels.length >= LEVELS.length;
         const alreadyCelebratedFull = Storage.load('gameCompleted', null);
         let pendingCongrats = false;
 
-        if (currentLevelIndex === LEVELS.length - 1 && allCompleted && !alreadyCelebratedFull) {
+        if (currentLevelIndex === LEVELS.length - 1 && allWouldBeCompleted && !alreadyCelebratedFull) {
             pendingCongrats = true;
             document.getElementById('winMsg').textContent = 'All levels completed! 🎉';
         } else if (starCount === 3) {
@@ -2478,7 +2469,7 @@ async function endGame() {
         const txError = document.getElementById('winTxError');
 
         if (isConnected()) {
-            // Save pending score data for retry
+            // Save pending score data for retry (progress NOT saved to localStorage yet)
             window._pendingScore = { levelIndex: currentLevelIndex, score, starCount };
 
             winMapBtn.disabled = true;
@@ -2490,7 +2481,8 @@ async function endGame() {
             const saved = await attemptSaveScore(currentLevelIndex, score, starCount, txLoading);
 
             if (saved) {
-                // Success — unlock button
+                // TX success — NOW save progress to localStorage
+                saveProgressLocally(level.id, score, starCount, currentLevelIndex);
                 window._pendingScore = null;
                 setTimeout(() => {
                     winMapBtn.disabled = false;
@@ -2500,11 +2492,14 @@ async function endGame() {
                     txError.classList.add('hidden');
                 }, 1500);
             } else {
-                // Failed — show retry, keep button locked
+                // Failed — show retry, keep button locked, NO localStorage save
                 txLoading.classList.add('hidden');
                 retryBtn.classList.remove('hidden');
                 txError.classList.remove('hidden');
             }
+        } else {
+            // Not connected — save locally as fallback
+            saveProgressLocally(level.id, score, starCount, currentLevelIndex);
         }
 
         // If first full completion, replace "To Map" button behavior
@@ -2546,6 +2541,25 @@ async function endGame() {
 }
 
 // ===== HIGH SCORES =====
+
+// Save progress to localStorage (called only after successful TX or when not connected)
+function saveProgressLocally(levelId, scoreVal, starCount, levelIndex) {
+    if (!completedLevels.includes(levelId)) {
+        completedLevels.push(levelId);
+        Storage.save(storageKey('completed'), completedLevels);
+        // Mark next level for unlock animation
+        if (levelIndex + 1 < LEVELS.length) {
+            justUnlockedId = LEVELS[levelIndex + 1].id;
+        }
+    }
+    const prevStars = bestStars[levelId] || 0;
+    if (starCount > prevStars) {
+        bestStars[levelId] = starCount;
+        Storage.save(storageKey('bestStars'), bestStars);
+    }
+    saveBestScore(levelId, scoreVal);
+}
+
 function saveBestScore(levelId, newScore) {
     const current = bestScores[levelId] || 0;
     if (newScore > current) {
