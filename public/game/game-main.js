@@ -433,13 +433,13 @@ function renderMap() {
 
     const totalLevels = LEVELS.length;
     const rowHeight = 130;
-    const mapHeight = (totalLevels + 2) * rowHeight;
+    const mapHeight = (totalLevels + 1) * rowHeight;
     container.style.minHeight = mapHeight + 'px';
     const positions = [];
     for (let i = 0; i < totalLevels; i++) {
         const row = totalLevels - 1 - i;
         const xPct = (i % 2 === 0) ? 35 : 65;
-        const y = rowHeight * 1.8 + row * rowHeight;
+        const y = rowHeight * 0.8 + row * rowHeight;
         positions.push({ x: xPct, y: y });
     }
     const svgNS = 'http://www.w3.org/2000/svg';
@@ -535,14 +535,13 @@ function renderMap() {
     const allCompleted = completedLevels.length >= LEVELS.length;
     if (allCompleted && positions.length > 0) {
         const lastPos = positions[positions.length - 1];
-        // Portal position: above last level, opposite side
-        const portalX = lastPos.x === 35 ? 65 : 35;
-        const portalY = lastPos.y - rowHeight;
+        // Portal position: same Y as last level, but to the left
+        const portalX = 10;
+        const portalY = lastPos.y;
 
-        // Extend SVG path to portal
+        // Short path from last level to portal
         const pathToPortal = document.createElementNS(svgNS, 'path');
-        const cpY = (lastPos.y + portalY) / 2;
-        pathToPortal.setAttribute('d', `M ${lastPos.x} ${lastPos.y} C ${lastPos.x} ${cpY}, ${portalX} ${cpY}, ${portalX} ${portalY}`);
+        pathToPortal.setAttribute('d', `M ${lastPos.x} ${portalY} L ${portalX} ${portalY}`);
         pathToPortal.setAttribute('fill', 'none');
         pathToPortal.setAttribute('stroke', 'rgba(153, 50, 204, 0.5)');
         pathToPortal.setAttribute('stroke-width', '3');
@@ -566,9 +565,6 @@ function renderMap() {
         `;
         portal.onclick = showComingSoonPopup;
         container.appendChild(portal);
-
-        // Adjust map height to include portal
-        container.style.minHeight = (mapHeight + rowHeight) + 'px';
     }
 
     const completed = completedLevels.length;
