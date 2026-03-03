@@ -100,36 +100,7 @@ window.manualShuffle = manualShuffle;
 window.toggleMusic = toggleMusic;
 window.retryLevel = retryLevel;
 window.connectWallet = function () { connectWallet(); };
-window.openProfile = function () {
-    // Update profile screen content
-    const addr = getWalletAddress();
-    const basename = typeof getWalletBasename === 'function' ? getWalletBasename() : '';
-    const usernameEl = document.getElementById('profileUsername');
-    const walletEl = document.getElementById('profileWallet');
-    const connectBtn = document.getElementById('profileConnectBtn');
-
-    if (addr && isConnected()) {
-        usernameEl.textContent = basename || 'Player';
-        walletEl.textContent = addr;
-        connectBtn.textContent = '🔌 Disconnect Wallet';
-        connectBtn.style.background = 'linear-gradient(135deg, #FF6B6B, #FF3366)';
-    } else {
-        usernameEl.textContent = 'Guest';
-        walletEl.textContent = 'Not connected';
-        connectBtn.textContent = '🔗 Connect Wallet';
-        connectBtn.style.background = 'linear-gradient(135deg, #9945FF, #14F195)';
-    }
-
-    showScreen('profileScreen');
-};
-window.handleProfileWallet = function () {
-    if (isConnected()) {
-        disconnectWallet();
-        window.openProfile(); // Refresh profile
-    } else {
-        connectWallet();
-    }
-};
+window.openProfile = function () { openProfile(); };
 
 // Callback: runs after wallet successfully connects
 onWalletConnect(async () => {
