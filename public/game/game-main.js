@@ -448,28 +448,7 @@ function renderMap() {
     svg.setAttribute('viewBox', `0 0 100 ${mapHeight}`);
     svg.setAttribute('preserveAspectRatio', 'none');
     if (positions.length > 1) {
-        let pathD = `M ${positions[0].x} ${positions[0].y}`;
-        for (let j = 1; j < positions.length; j++) {
-            const prev = positions[j - 1];
-            const curr = positions[j];
-            const cpY = (prev.y + curr.y) / 2;
-            pathD += ` C ${prev.x} ${cpY}, ${curr.x} ${cpY}, ${curr.x} ${curr.y}`;
-        }
-        const shadowPath = document.createElementNS(svgNS, 'path');
-        shadowPath.setAttribute('d', pathD);
-        shadowPath.setAttribute('fill', 'none');
-        shadowPath.setAttribute('stroke', 'rgba(0,0,0,0.15)');
-        shadowPath.setAttribute('stroke-width', '5');
-        shadowPath.setAttribute('stroke-linecap', 'round');
-        svg.appendChild(shadowPath);
-        const trailPath = document.createElementNS(svgNS, 'path');
-        trailPath.setAttribute('d', pathD);
-        trailPath.setAttribute('fill', 'none');
-        trailPath.setAttribute('stroke', 'rgba(255,255,255,0.7)');
-        trailPath.setAttribute('stroke-width', '3');
-        trailPath.setAttribute('stroke-dasharray', '6 4');
-        trailPath.setAttribute('stroke-linecap', 'round');
-        svg.appendChild(trailPath);
+        // Path between levels removed for cleaner look
     }
     container.appendChild(svg);
     const decoEmojis = ['🍬', '🍭', '🍫', '🍩', '🧁', '🍪', '🌸', '🌺', '🦋', '⭐', '🌈', '🎀'];
@@ -539,15 +518,7 @@ function renderMap() {
         const portalX = 100 - lastPos.x;  // 65 → 35
         const portalY = lastPos.y;
 
-        // Short path from last level to portal
-        const pathToPortal = document.createElementNS(svgNS, 'path');
-        pathToPortal.setAttribute('d', `M ${lastPos.x} ${portalY} L ${portalX} ${portalY}`);
-        pathToPortal.setAttribute('fill', 'none');
-        pathToPortal.setAttribute('stroke', 'rgba(153, 50, 204, 0.5)');
-        pathToPortal.setAttribute('stroke-width', '3');
-        pathToPortal.setAttribute('stroke-dasharray', '6 4');
-        pathToPortal.setAttribute('stroke-linecap', 'round');
-        svg.appendChild(pathToPortal);
+
 
         // Portal element
         const portal = document.createElement('div');
