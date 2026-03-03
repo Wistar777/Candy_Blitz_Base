@@ -3,7 +3,7 @@ import { Storage } from './storage.js';
 import { STAR_THRESHOLDS, LEVELS, GRID, HINT_DELAY, CANDY_TILES } from './config.js';
 import { initAudio, playSound, startMusic, stopMusic, toggleMusic, changeVolume, changeSfxVolume, getMusicVolume, getSfxVolume } from './audio.js';
 import { showCombo, spawnRocketTrail, spawnBombShockwave, spawnRainbowWave, spawnLightningEffect, spawnGodRays, spawnLightBurst, showCinematicVignette, showScreenTint, boardCinematicZoom, showCompliment, spawnParticles, showScorePopup, createConfetti, startFireworks, stopFireworks } from './effects.js';
-import { initBlockchain, connectWallet, disconnectWallet, submitScore, isConnected, getWalletAddress, onWalletConnect, onWalletDisconnect, openProfile, getWalletStorageKey, tryAutoReconnect, fetchLeaderboard, getWalletBalance, startGameSession, recordSwap, delegatePlayerAccount, startSessionOnER, recordSwapOnER, commitAndUndelegate, fetchPlayerProgress, waitForPDASettlement, resolveAddresses, getWalletBasename } from './blockchain-bridge.js';
+import { initBlockchain, connectWallet, disconnectWallet, submitScore, isConnected, getWalletAddress, onWalletConnect, onWalletDisconnect, openProfile, getWalletStorageKey, tryAutoReconnect, fetchLeaderboard, getWalletBalance, startGameSession, recordSwap, delegatePlayerAccount, startSessionOnER, recordSwapOnER, commitAndUndelegate, fetchPlayerProgress, waitForPDASettlement, resolveAddresses } from './blockchain-bridge.js';
 
 // Expose globals for HTML inline events
 window.openSettings = openSettings;
