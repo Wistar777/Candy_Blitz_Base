@@ -369,7 +369,7 @@ function spawnFloatingHearts() {
 let screenTransitionTimeout = null;
 
 function showScreen(id) {
-    const screens = ['startScreen', 'mapScreen', 'gameScreen', 'winScreen', 'loseScreen', 'settingsScreen', 'congratsScreen', 'leaderboardScreen', 'profileScreen'];
+    const screens = ['startScreen', 'mapScreen', 'gameScreen', 'winScreen', 'loseScreen', 'settingsScreen', 'congratsScreen', 'leaderboardScreen'];
     let activeScreen = null;
 
     screens.forEach(s => {
@@ -2648,11 +2648,7 @@ function sleep(ms) {
 }
 
 // ===== PWA SERVICE WORKER =====
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => { });
-    });
-}
+// PWA service worker removed (not needed in Base App context)
 
 // ===== INIT =====
 initBlockchain();
