@@ -44,45 +44,45 @@ export const LEVELS = [
         id: 'cupcake', name: 'Cupcake Castle', icon: '🧁', img: 'photos/levels/cupcake.png', types: 6, goal: 1500, time: 120,
         zone: { bg: '#BA55D3', accent: '#9932CC', glow: 'rgba(153,50,204,0.5)' },
         theme: { bg: 'linear-gradient(135deg, #DDA0DD, #BA55D3, #9932CC)', card: 'rgba(221,160,221,0.3)', border: 'rgba(186,85,211,0.5)', accent: '#9932CC' },
-        mask: [ // cross
-            [0, 0, 1, 1, 1, 1, 0, 0],
-            [0, 0, 1, 1, 1, 1, 0, 0],
+        mask: [ // scattered holes (was donut)
+            [1, 1, 0, 1, 1, 0, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 1, 1, 1, 0],
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 1, 1, 1, 0],
             [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [0, 0, 1, 1, 1, 1, 0, 0],
-            [0, 0, 1, 1, 1, 1, 0, 0],
+            [1, 1, 0, 1, 1, 0, 1, 1],
         ]
     },
     {
         id: 'cookie', name: 'Cookie Kingdom', icon: '🍪', img: 'photos/levels/cookie.png', types: 6, goal: 1500, time: 120,
         zone: { bg: '#F0B430', accent: '#D4AC0D', glow: 'rgba(212,172,13,0.5)' },
         theme: { bg: 'linear-gradient(135deg, #F5D76E, #F0B430, #D4AC0D)', card: 'rgba(255,245,200,0.3)', border: 'rgba(240,180,48,0.5)', accent: '#D4AC0D' },
-        mask: [ // center hole + corners
-            [0, 1, 1, 1, 1, 1, 1, 0],
+        mask: [ // cross (was cupcake)
+            [0, 0, 1, 1, 1, 1, 0, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 0, 0, 1, 1, 1],
-            [1, 1, 1, 0, 0, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1, 1, 1, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
         ]
     },
     {
         id: 'donut', name: 'Donut Dimension', icon: '🍩', img: 'photos/levels/donut.png', types: 6, goal: 1500, time: 120,
         zone: { bg: '#FF4500', accent: '#DC143C', glow: 'rgba(255,69,0,0.5)' },
         theme: { bg: 'linear-gradient(135deg, #FF6347, #FF4500, #DC143C)', card: 'rgba(255,99,71,0.3)', border: 'rgba(255,69,0,0.5)', accent: '#FF4500' },
-        mask: [ // scattered holes
-            [1, 1, 0, 1, 1, 0, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1],
+        mask: [ // center hole + corners (was cookie)
             [0, 1, 1, 1, 1, 1, 1, 0],
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
-            [0, 1, 1, 1, 1, 1, 1, 0],
+            [1, 1, 1, 0, 0, 1, 1, 1],
+            [1, 1, 1, 0, 0, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 0, 1, 1, 0, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 1, 1, 1, 1, 1, 1, 0],
         ]
     }
 ];
