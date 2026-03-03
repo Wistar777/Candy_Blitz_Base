@@ -74,15 +74,27 @@
             <h2 class="onb-title">Match Candies!</h2>
             <p class="onb-text">Swap candies to make a row or column of 3 or more. Create combos for bonus points!</p>
         </div>
-        <!-- Slide 1: Earn Stars -->
+        <!-- Slide 1: Special Candies -->
         <div id="onb-slide-1" class="onb-slide" style="display:none;">
+            <div class="onb-emoji">🚀💣⚡🌈</div>
+            <h2 class="onb-title">Special Candies</h2>
+            <p class="onb-text">Match 4+ to create specials:<br>
+                🚀 Rocket — clears a row/column<br>
+                💣 Bomb — explodes area<br>
+                ⚡ Lightning — strikes random tiles<br>
+                🌈 Rainbow — clears all of one color<br>
+                <strong>Double-tap to activate!</strong>
+            </p>
+        </div>
+        <!-- Slide 2: Earn Stars -->
+        <div id="onb-slide-2" class="onb-slide" style="display:none;">
             <div class="onb-emoji">⭐⭐⭐</div>
             <h2 class="onb-title">Earn Stars</h2>
             <p class="onb-text">Score enough points to earn 1-3 stars per level. Beat the target before time runs out!
             </p>
         </div>
-        <!-- Slide 2: On-Chain -->
-        <div id="onb-slide-2" class="onb-slide" style="display:none;">
+        <!-- Slide 3: On-Chain -->
+        <div id="onb-slide-3" class="onb-slide" style="display:none;">
             <div class="onb-emoji">🏆⛓️</div>
             <h2 class="onb-title">Compete On-Chain</h2>
             <p class="onb-text">Your scores are saved to the Base blockchain. Climb the leaderboard and prove you're the
@@ -93,6 +105,7 @@
             <span class="onb-dot active" onclick="showOnboardingSlide(0)"></span>
             <span class="onb-dot" onclick="showOnboardingSlide(1)"></span>
             <span class="onb-dot" onclick="showOnboardingSlide(2)"></span>
+            <span class="onb-dot" onclick="showOnboardingSlide(3)"></span>
         </div>
         <!-- Buttons -->
         <div class="onb-buttons">

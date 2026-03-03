@@ -839,7 +839,7 @@ function startTutorialFromSplash() {
 }
 
 let currentOnboardingSlide = 0;
-const totalOnboardingSlides = 3;
+const totalOnboardingSlides = 4;
 
 function showOnboardingSlide(index) {
     currentOnboardingSlide = index;
