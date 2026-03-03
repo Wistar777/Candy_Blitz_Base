@@ -216,7 +216,7 @@ onWalletConnect(async () => {
                     Storage.save(storageKey('bestStars'), bestStars);
                     Storage.save(storageKey('completed'), completedLevels);
                     renderMap();
-                    console.log('[Progress] 📊 Synced on-chain progress to local');
+
                 }
             }
         } catch (e) {
@@ -1007,9 +1007,9 @@ function startLevel(levelIndex) {
 
         if (erReady) {
             erText.textContent = '✅ Connected!';
-            console.log('[Base] ⚡ Game session ready — game starting!');
+
         } else {
-            console.log('[Base] ⚠️ Fallback — game starting without blockchain session');
+
         }
 
         // NOW start the timer
@@ -1764,7 +1764,7 @@ function collectSpecialEffect(r, c, type, clearedSet) {
                 [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
             }
             const strikes = candidates.slice(0, 5);
-            console.log(`[Lightning] ⚡ Striking ${strikes.length} tiles from ${candidates.length} candidates:`, strikes);
+
             strikes.forEach(k => clearedSet.add(k));
             spawnLightningEffect(r, c, strikes);
             break;
