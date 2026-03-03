@@ -139,48 +139,18 @@ onWalletConnect(async () => {
     loadWalletProgress();
     renderMap();
 
-    // --- Newcomer detection: check if wallet is in leaderboard ---
-    const profileCheck = document.getElementById('profileCheck');
+    // --- Tutorial: show on first visit, then never again ---
     const tutorialBtn = document.getElementById('tutorialBtn');
     const playBtn = document.getElementById('playBtn');
+    const profileCheck = document.getElementById('profileCheck');
+    if (profileCheck) { profileCheck.classList.add('hidden'); profileCheck.style.display = 'none'; }
 
-    // Show loading state
-    if (profileCheck) {
-        profileCheck.classList.remove('hidden');
-        profileCheck.style.display = 'flex';
-    }
-    if (tutorialBtn) tutorialBtn.classList.add('hidden');
-    if (playBtn) playBtn.classList.add('hidden');
-
-    try {
-        const leaderboard = await fetchLeaderboard();
-        const myAddr = getWalletAddress().toLowerCase();
-        const isNewcomer = !leaderboard.some(entry =>
-            (entry.address || entry.player || '').toLowerCase() === myAddr
-        );
-
-        // Hide loading
-        if (profileCheck) {
-            profileCheck.classList.add('hidden');
-            profileCheck.style.display = 'none';
-        }
-
-        if (isNewcomer) {
-            // New player — show Tutorial button
-            if (tutorialBtn) tutorialBtn.classList.remove('hidden');
-            if (playBtn) playBtn.classList.add('hidden');
-        } else {
-            // Returning player — show Play button directly
-            if (tutorialBtn) tutorialBtn.classList.add('hidden');
-            if (playBtn) playBtn.classList.remove('hidden');
-        }
-    } catch (e) {
-        console.warn('[Profile] Leaderboard check failed, showing Play:', e);
-        // On error — show Play button as fallback
-        if (profileCheck) {
-            profileCheck.classList.add('hidden');
-            profileCheck.style.display = 'none';
-        }
+    const tutorialSeen = localStorage.getItem('candyblitz_tutorialSeen');
+    if (!tutorialSeen) {
+        if (tutorialBtn) tutorialBtn.classList.remove('hidden');
+        if (playBtn) playBtn.classList.add('hidden');
+    } else {
+        if (tutorialBtn) tutorialBtn.classList.add('hidden');
         if (playBtn) playBtn.classList.remove('hidden');
     }
 
@@ -903,6 +873,8 @@ function dismissOnboarding() {
         overlay.classList.add('hidden');
         overlay.style.display = 'none';
     }
+    // Mark tutorial as seen
+    localStorage.setItem('candyblitz_tutorialSeen', 'true');
     if (pendingLevelIndex !== null) {
         // Came from startLevel — continue to the level
         startLevel(pendingLevelIndex);
