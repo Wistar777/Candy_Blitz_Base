@@ -145,7 +145,8 @@ onWalletConnect(async () => {
     const profileCheck = document.getElementById('profileCheck');
     if (profileCheck) { profileCheck.classList.add('hidden'); profileCheck.style.display = 'none'; }
 
-    const tutorialSeen = localStorage.getItem('candyblitz_tutorialSeen');
+    const tutorialKey = 'candyblitz_tutorialSeen_' + addr.toLowerCase();
+    const tutorialSeen = localStorage.getItem(tutorialKey);
     if (!tutorialSeen) {
         if (tutorialBtn) tutorialBtn.classList.remove('hidden');
         if (playBtn) playBtn.classList.add('hidden');
@@ -873,8 +874,9 @@ function dismissOnboarding() {
         overlay.classList.add('hidden');
         overlay.style.display = 'none';
     }
-    // Mark tutorial as seen
-    localStorage.setItem('candyblitz_tutorialSeen', 'true');
+    // Mark tutorial as seen for current wallet
+    const addr = typeof getWalletAddress === 'function' ? getWalletAddress() : '';
+    if (addr) localStorage.setItem('candyblitz_tutorialSeen_' + addr.toLowerCase(), 'true');
     if (pendingLevelIndex !== null) {
         // Came from startLevel — continue to the level
         startLevel(pendingLevelIndex);
