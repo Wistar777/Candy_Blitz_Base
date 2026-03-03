@@ -16,7 +16,16 @@ window.openLeaderboard = async function () {
     showScreen('leaderboardScreen');
     const table = document.getElementById('leaderboardTable');
     const footer = document.querySelector('.lb-footer');
-    if (footer) footer.textContent = '⏳ Loading on-chain scores...';
+    if (footer) footer.textContent = '';
+
+    // Show loading spinner
+    const header = table.querySelector('.lb-header');
+    table.innerHTML = '';
+    if (header) table.appendChild(header);
+    const spinner = document.createElement('div');
+    spinner.className = 'lb-spinner';
+    spinner.innerHTML = '<div class="lb-spinner-circle"></div><div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: 10px;">Loading leaderboard...</div>';
+    table.appendChild(spinner);
 
     try {
         const players = await fetchLeaderboard();

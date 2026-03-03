@@ -3347,6 +3347,30 @@ h2 {
     margin-top: 5px;
 }
 
+.lb-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.lb-spinner-circle {
+    width: 36px;
+    height: 36px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #9945FF;
+    border-right-color: #14F195;
+    border-radius: 50%;
+    animation: lbSpin 0.8s linear infinite;
+}
+
+@keyframes lbSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* ===== TX Notification Toast ===== */
 @keyframes slideInRight {
     from {
@@ -3436,28 +3460,61 @@ h2 {
 }
 
 @keyframes portalImgSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes portalVortex {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(-360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(-360deg);
+    }
 }
 
 @keyframes portalFloat {
-    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
-    50% { transform: translate(-50%, -50%) translateY(-6px); }
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) translateY(0);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) translateY(-6px);
+    }
 }
 
 @keyframes portalPulse {
-    0%, 100% { opacity: 0.4; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.2); }
+
+    0%,
+    100% {
+        opacity: 0.4;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
 }
 
 @keyframes portalLabelPulse {
-    0%, 100% { text-shadow: 0 0 8px rgba(153, 50, 204, 0.8); }
-    50% { text-shadow: 0 0 14px rgba(20, 241, 149, 0.8); }
+
+    0%,
+    100% {
+        text-shadow: 0 0 8px rgba(153, 50, 204, 0.8);
+    }
+
+    50% {
+        text-shadow: 0 0 14px rgba(20, 241, 149, 0.8);
+    }
 }
 
 
