@@ -49,6 +49,11 @@ body {
     margin-top: 0;
 }
 
+#leaderboardTable {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
 .hidden {
     display: none !important;
 }
