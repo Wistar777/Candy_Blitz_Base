@@ -44,6 +44,10 @@ body {
     max-width: 600px;
 }
 
+#leaderboardScreen {
+    align-self: flex-start;
+}
+
 .hidden {
     display: none !important;
 }
