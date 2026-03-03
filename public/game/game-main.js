@@ -3,7 +3,7 @@ import { Storage } from './storage.js';
 import { STAR_THRESHOLDS, LEVELS, GRID, HINT_DELAY, CANDY_TILES } from './config.js';
 import { initAudio, playSound, startMusic, stopMusic, toggleMusic, changeVolume, changeSfxVolume, getMusicVolume, getSfxVolume } from './audio.js';
 import { showCombo, spawnRocketTrail, spawnBombShockwave, spawnRainbowWave, spawnLightningEffect, spawnGodRays, spawnLightBurst, showCinematicVignette, showScreenTint, boardCinematicZoom, showCompliment, spawnParticles, showScorePopup, createConfetti, startFireworks, stopFireworks } from './effects.js';
-import { initBlockchain, connectWallet, disconnectWallet, submitScore, isConnected, getWalletAddress, onWalletConnect, onWalletDisconnect, openProfile, getWalletStorageKey, tryAutoReconnect, fetchLeaderboard, getWalletBalance, startGameSession, recordSwap, delegatePlayerAccount, startSessionOnER, recordSwapOnER, commitAndUndelegate, fetchPlayerProgress, waitForPDASettlement, resolveAddresses } from './blockchain-bridge.js';
+import { initBlockchain, connectWallet, disconnectWallet, submitScore, isConnected, getWalletAddress, onWalletConnect, onWalletDisconnect, openProfile, getWalletStorageKey, tryAutoReconnect, fetchLeaderboard, getWalletBalance, startGameSession, recordSwap, delegatePlayerAccount, startSessionOnER, recordSwapOnER, commitAndUndelegate, fetchPlayerProgress, waitForPDASettlement, resolveAddresses, getWalletBasename } from './blockchain-bridge.js';
 
 // Expose globals for HTML inline events
 window.openSettings = openSettings;
@@ -100,7 +100,36 @@ window.manualShuffle = manualShuffle;
 window.toggleMusic = toggleMusic;
 window.retryLevel = retryLevel;
 window.connectWallet = function () { connectWallet(); };
-window.openProfile = function () { openProfile(); };
+window.openProfile = function () {
+    // Update profile screen content
+    const addr = getWalletAddress();
+    const basename = typeof getWalletBasename === 'function' ? getWalletBasename() : '';
+    const usernameEl = document.getElementById('profileUsername');
+    const walletEl = document.getElementById('profileWallet');
+    const connectBtn = document.getElementById('profileConnectBtn');
+
+    if (addr && isConnected()) {
+        usernameEl.textContent = basename || 'Player';
+        walletEl.textContent = addr;
+        connectBtn.textContent = '🔌 Disconnect Wallet';
+        connectBtn.style.background = 'linear-gradient(135deg, #FF6B6B, #FF3366)';
+    } else {
+        usernameEl.textContent = 'Guest';
+        walletEl.textContent = 'Not connected';
+        connectBtn.textContent = '🔗 Connect Wallet';
+        connectBtn.style.background = 'linear-gradient(135deg, #9945FF, #14F195)';
+    }
+
+    showScreen('profileScreen');
+};
+window.handleProfileWallet = function () {
+    if (isConnected()) {
+        disconnectWallet();
+        window.openProfile(); // Refresh profile
+    } else {
+        connectWallet();
+    }
+};
 
 // Callback: runs after wallet successfully connects
 onWalletConnect(async () => {
@@ -360,7 +389,7 @@ function spawnFloatingHearts() {
 let screenTransitionTimeout = null;
 
 function showScreen(id) {
-    const screens = ['startScreen', 'mapScreen', 'gameScreen', 'winScreen', 'loseScreen', 'settingsScreen', 'congratsScreen', 'leaderboardScreen'];
+    const screens = ['startScreen', 'mapScreen', 'gameScreen', 'winScreen', 'loseScreen', 'settingsScreen', 'congratsScreen', 'leaderboardScreen', 'profileScreen'];
     let activeScreen = null;
 
     screens.forEach(s => {
