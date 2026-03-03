@@ -203,8 +203,9 @@ onWalletConnect(async () => {
                         bestStars[levelId] = onChainStars;
                         updated = true;
                     }
-                    // Restore completed levels from bitmask
-                    if ((progress.completedLevels & (1 << i)) !== 0) {
+                    // Restore completed levels: contract stores count, not bitmask
+                    // So mark level as completed if it has a score > 0
+                    if (onChainScore > 0) {
                         if (!completedLevels.includes(levelId)) {
                             completedLevels.push(levelId);
                             updated = true;
