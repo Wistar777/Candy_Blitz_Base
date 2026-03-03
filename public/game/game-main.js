@@ -556,11 +556,11 @@ function renderMap() {
         portal.style.top = portalY + 'px';
         portal.innerHTML = `
             <div class="world-portal-glow"></div>
-            <div class="world-portal-ring"></div>
-            <div class="world-portal-inner">
-                <span class="world-portal-icon">🌀</span>
-                <span class="world-portal-label">WORLD 2</span>
+            <div class="world-portal-circle">
+                <img class="world-portal-img" src="photos/portal.png" alt="Portal" />
+                <div class="world-portal-vortex"></div>
             </div>
+            <div class="world-portal-label">WORLD 2</div>
             <div class="world-portal-lock">🔒</div>
         `;
         portal.onclick = showComingSoonPopup;

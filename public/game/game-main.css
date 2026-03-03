@@ -3360,7 +3360,7 @@ h2 {
     }
 }
 
-/* ===== World Portal Teaser (3D) ===== */
+/* ===== World Portal Teaser ===== */
 .world-portal {
     position: absolute;
     width: 90px;
@@ -3368,7 +3368,6 @@ h2 {
     transform: translate(-50%, -50%);
     cursor: pointer;
     z-index: 15;
-    perspective: 200px;
     animation: portalFloat 3s ease-in-out infinite;
 }
 
@@ -3376,95 +3375,48 @@ h2 {
     position: absolute;
     inset: -20px;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(153, 50, 204, 0.6) 0%, rgba(20, 241, 149, 0.2) 40%, transparent 70%);
-    animation: portalPulse 2s ease-in-out infinite;
-    filter: blur(4px);
+    background: radial-gradient(circle, rgba(153, 50, 204, 0.5) 0%, rgba(20, 241, 149, 0.15) 40%, transparent 70%);
+    animation: portalPulse 2.5s ease-in-out infinite;
+    filter: blur(6px);
 }
 
-/* Outer ring — tilted 3D spin */
-.world-portal-ring {
+.world-portal-circle {
     position: absolute;
-    inset: -4px;
+    inset: 0;
     border-radius: 50%;
-    border: 3px solid transparent;
-    background: conic-gradient(from 0deg, #9945FF, #14F195, #FFD700, #FF6B6B, #9945FF) border-box;
-    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: portalSpin3D 3s linear infinite;
-    transform-style: preserve-3d;
-}
-
-/* Second inner ring — opposite tilt */
-.world-portal-ring::after {
-    content: '';
-    position: absolute;
-    inset: 4px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    background: conic-gradient(from 180deg, #FF6B6B, #FFD700, #14F195, #9945FF, #FF6B6B) border-box;
-    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: portalSpin3Dreverse 2.5s linear infinite;
-}
-
-.world-portal-inner {
-    position: absolute;
-    inset: 8px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 40% 40%, #2a0050 0%, #0a0014 60%, #000 100%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
-    box-shadow: inset 0 0 20px rgba(153, 50, 204, 0.5), inset 0 0 40px rgba(0, 0, 0, 0.8);
+    border: 3px solid rgba(153, 50, 204, 0.6);
+    box-shadow: 0 0 15px rgba(153, 50, 204, 0.4), inset 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
-/* Swirling vortex inside */
-.world-portal-inner::before {
-    content: '';
+.world-portal-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: portalImgSpin 8s linear infinite;
+}
+
+.world-portal-vortex {
     position: absolute;
-    inset: 5px;
+    inset: 0;
     border-radius: 50%;
-    background: conic-gradient(from 0deg,
-            transparent 0%,
-            rgba(153, 50, 204, 0.3) 25%,
-            transparent 50%,
-            rgba(20, 241, 149, 0.2) 75%,
-            transparent 100%);
-    animation: portalVortex 2s linear infinite;
-}
-
-/* Particles orbiting */
-.world-portal-inner::after {
-    content: '✦';
-    position: absolute;
-    font-size: 0.4rem;
-    color: #14F195;
-    animation: portalOrbit 3s linear infinite;
-    text-shadow: 0 0 6px #14F195, 4px 4px 0 #FFD700, -6px 2px 0 #FF6B6B;
-    letter-spacing: 8px;
-}
-
-.world-portal-icon {
-    font-size: 1.8rem;
-    position: relative;
-    z-index: 2;
-    filter: drop-shadow(0 0 8px rgba(153, 50, 204, 0.8));
-    animation: portalIconPulse 2s ease-in-out infinite;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(153, 50, 204, 0.2) 25%, transparent 50%, rgba(20, 241, 149, 0.15) 75%, transparent 100%);
+    animation: portalVortex 2.5s linear infinite;
+    mix-blend-mode: screen;
 }
 
 .world-portal-label {
-    font-size: 0.5rem;
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.55rem;
     color: rgba(255, 255, 255, 0.9);
     font-weight: 700;
     letter-spacing: 1px;
-    margin-top: 1px;
-    position: relative;
-    z-index: 2;
-    text-shadow: 0 0 6px rgba(153, 50, 204, 0.8);
+    white-space: nowrap;
+    text-shadow: 0 0 8px rgba(153, 50, 204, 0.8);
+    animation: portalLabelPulse 2.5s ease-in-out infinite;
 }
 
 .world-portal-lock {
@@ -3483,85 +3435,31 @@ h2 {
     z-index: 3;
 }
 
-@keyframes portalSpin3D {
-    from {
-        transform: rotateX(20deg) rotateZ(0deg);
-    }
-
-    to {
-        transform: rotateX(20deg) rotateZ(360deg);
-    }
-}
-
-@keyframes portalSpin3Dreverse {
-    from {
-        transform: rotateX(-15deg) rotateY(10deg) rotateZ(360deg);
-    }
-
-    to {
-        transform: rotateX(-15deg) rotateY(10deg) rotateZ(0deg);
-    }
+@keyframes portalImgSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 @keyframes portalVortex {
-    from {
-        transform: rotate(0deg) scale(1);
-    }
-
-    to {
-        transform: rotate(360deg) scale(1);
-    }
-}
-
-@keyframes portalOrbit {
-    from {
-        transform: rotate(0deg) translateX(18px) rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg) translateX(18px) rotate(-360deg);
-    }
-}
-
-@keyframes portalIconPulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        filter: drop-shadow(0 0 8px rgba(153, 50, 204, 0.8));
-    }
-
-    50% {
-        transform: scale(1.1);
-        filter: drop-shadow(0 0 14px rgba(20, 241, 149, 0.8));
-    }
+    from { transform: rotate(0deg); }
+    to { transform: rotate(-360deg); }
 }
 
 @keyframes portalFloat {
-
-    0%,
-    100% {
-        transform: translate(-50%, -50%) translateY(0);
-    }
-
-    50% {
-        transform: translate(-50%, -50%) translateY(-6px);
-    }
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-6px); }
 }
 
 @keyframes portalPulse {
-
-    0%,
-    100% {
-        opacity: 0.5;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 1;
-        transform: scale(1.2);
-    }
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
 }
+
+@keyframes portalLabelPulse {
+    0%, 100% { text-shadow: 0 0 8px rgba(153, 50, 204, 0.8); }
+    50% { text-shadow: 0 0 14px rgba(20, 241, 149, 0.8); }
+}
+
 
 /* Coming Soon Modal */
 .coming-soon-overlay {
